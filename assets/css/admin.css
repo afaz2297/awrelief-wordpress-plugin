@@ -1,0 +1,78 @@
+/* AWRELIEF dashboard — ink, parchment and logo gold */
+.afz-admin {
+  --ink: #0c0b09; --ink-2: #16130f; --paper: #fbf8f2; --cream: #f2ebdf; --line: rgba(27,23,18,.1);
+  --gold: #c9a04a; --gold-lo: #8e6420; --gold-hi: #f3dc9a; --text: #1b1712; --muted: #6e6455;
+  --grad: linear-gradient(115deg, #8e6420 0%, #c99a3c 22%, #f6e2a4 42%, #d8b250 58%, #a7751d 80%, #8e6420 100%);
+  margin: 20px 20px 40px 0; color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+.afz-admin * { box-sizing: border-box; }
+.afz-admin__hero {
+  position: relative; overflow: hidden; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 24px;
+  padding: 34px 38px; border-radius: 22px; color: #efe6d6;
+  background: radial-gradient(70% 140% at 85% 0%, rgba(201,160,74,.25), transparent 60%), radial-gradient(60% 120% at 0% 100%, rgba(201,160,74,.12), transparent 60%), var(--ink);
+  box-shadow: 0 30px 60px -30px rgba(12,11,9,.6);
+}
+.afz-admin__hero::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--grad); }
+.afz-admin__brand { display: flex; align-items: center; gap: 20px; }
+.afz-admin__emblem { width: 62px; aspect-ratio: 680 / 665; background: var(--grad); -webkit-mask: url(../img/emblem-mask.webp) center / contain no-repeat; mask: url(../img/emblem-mask.webp) center / contain no-repeat; }
+.afz-admin__eyebrow { margin: 0 0 6px; font: 500 11px/1 ui-monospace, Menlo, monospace; letter-spacing: .24em; text-transform: uppercase; color: var(--gold); }
+.afz-admin h1 { margin: 0; padding: 0; font: 500 40px/1 "Bodoni Moda", Didot, Georgia, serif; letter-spacing: .02em; color: transparent; background: var(--grad); -webkit-background-clip: text; background-clip: text; }
+.afz-admin__stats { display: flex; gap: 10px; margin: 0; flex-wrap: wrap; }
+.afz-admin__stats li { margin: 0; min-width: 110px; padding: 14px 18px; border-radius: 16px; border: 1px solid rgba(232,214,176,.16); background: rgba(232,214,176,.04); }
+.afz-admin__stats b { display: block; font: 500 26px/1 "Bodoni Moda", Georgia, serif; color: var(--gold-hi); }
+.afz-admin__stats span { display: block; margin-top: 6px; font: 500 10px/1.2 ui-monospace, Menlo, monospace; letter-spacing: .16em; text-transform: uppercase; color: #a89f8e; }
+
+.afz-admin__body { display: grid; grid-template-columns: 230px 1fr; gap: 22px; margin-top: 22px; align-items: start; }
+.afz-admin__tabs { position: sticky; top: 52px; display: flex; flex-direction: column; gap: 4px; padding: 12px; border-radius: 20px; background: var(--paper); border: 1px solid var(--line); }
+.afz-admin__tabs a { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px; color: var(--text); text-decoration: none; font-weight: 500; transition: background .3s, color .3s; }
+.afz-admin__tabs a:hover { background: var(--cream); color: var(--gold-lo); }
+.afz-admin__tabs a.is-active { background: var(--ink); color: var(--gold-hi); box-shadow: 0 10px 24px -14px rgba(12,11,9,.8); }
+.afz-admin__tabs a:focus { box-shadow: 0 0 0 2px var(--gold); outline: 0; }
+.afz-admin__tabs .dashicons { font-size: 18px; width: 18px; height: 18px; }
+
+.afz-admin__panel { padding: 34px 38px 30px; border-radius: 22px; background: var(--paper); border: 1px solid var(--line); }
+.afz-admin__panel h2 { margin: 0 0 8px; font: 500 30px/1.1 "Bodoni Moda", Georgia, serif; }
+.afz-admin__intro { margin: 0 0 26px; color: var(--muted); font-size: 14px; max-width: 70ch; }
+.afz-admin__fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 26px; }
+.afz-field--textarea, .afz-field--code, .afz-field--media { grid-column: 1 / -1; }
+.afz-field label { display: block; margin-bottom: 8px; font: 500 11px/1.3 ui-monospace, Menlo, monospace; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.afz-field input[type=text], .afz-field input[type=email], .afz-field input[type=url], .afz-field input[type=number], .afz-field input[type=password], .afz-field textarea {
+  width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line); background: #fff; font-size: 14px; line-height: 1.5; box-shadow: none; transition: border-color .3s, box-shadow .3s;
+}
+.afz-field input:focus, .afz-field textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,160,74,.18); outline: 0; }
+.afz-field textarea.code { font-family: ui-monospace, Menlo, monospace; font-size: 13px; background: #fffdf8; }
+.afz-field__help { margin: 7px 0 0; color: var(--muted); font-size: 12.5px; }
+
+.afz-toggle { display: flex !important; align-items: center; gap: 14px; cursor: pointer; padding: 14px 16px; border-radius: 14px; border: 1px solid var(--line); background: #fff; font: 500 14px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important; letter-spacing: 0 !important; text-transform: none !important; color: var(--text) !important; margin: 0 !important; }
+.afz-toggle input { position: absolute; opacity: 0; }
+.afz-toggle__ui { position: relative; flex: 0 0 auto; width: 42px; height: 24px; border-radius: 24px; background: #d9d2c5; transition: background .3s; }
+.afz-toggle__ui::after { content: ''; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.2); transition: transform .35s cubic-bezier(.22,1,.36,1); }
+.afz-toggle input:checked + .afz-toggle__ui { background: var(--grad); }
+.afz-toggle input:checked + .afz-toggle__ui::after { transform: translateX(18px); }
+.afz-toggle input:focus-visible + .afz-toggle__ui { box-shadow: 0 0 0 3px rgba(201,160,74,.35); }
+
+.afz-media { display: flex; align-items: center; gap: 12px; }
+.afz-media__preview img { width: 96px; height: 72px; object-fit: cover; border-radius: 10px; border: 1px solid var(--line); }
+
+.afz-admin__save { margin-top: 30px; padding-top: 22px; border-top: 1px solid var(--line); }
+.afz-admin .afz-btn, .afz-admin .button-primary { height: auto; padding: 12px 26px !important; border-radius: 999px !important; border: 0 !important; background: var(--grad) !important; background-size: 200% 100% !important; color: var(--ink) !important; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; font-size: 12px; box-shadow: 0 10px 26px -12px rgba(201,160,74,.8) !important; transition: background-position .8s; }
+.afz-admin .afz-btn:hover, .afz-admin .button-primary:hover { background-position: 100% 0 !important; }
+.afz-admin__credit { margin-top: 18px; color: var(--muted); font: 500 10px ui-monospace, Menlo, monospace; letter-spacing: .16em; text-transform: uppercase; }
+
+.afz-tool { margin-top: 26px; padding: 22px 24px; border-radius: 16px; background: var(--ink); color: #efe6d6; }
+.afz-tool h3 { margin: 0 0 6px; color: var(--gold-hi); font: 500 20px "Bodoni Moda", Georgia, serif; }
+.afz-tool p { margin: 0 0 14px; color: #c9bfae; }
+.afz-tool__bar { height: 8px; border-radius: 8px; background: rgba(239,230,214,.12); overflow: hidden; margin: 14px 0 8px; }
+.afz-tool__bar i { display: block; height: 100%; width: 0; background: var(--grad); transition: width .4s; }
+.afz-tool__log { font: 12px/1.5 ui-monospace, Menlo, monospace; color: #a89f8e; }
+
+/* entries / subscribers tables */
+.afz-admin .widefat { border-radius: 16px; overflow: hidden; border-color: var(--line); }
+.afz-admin .widefat thead th { font: 500 11px ui-monospace, Menlo, monospace; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.afz-admin .afz-unread td { font-weight: 600; }
+
+@media (max-width: 960px) {
+  .afz-admin__body { grid-template-columns: 1fr; }
+  .afz-admin__tabs { position: static; flex-direction: row; flex-wrap: wrap; }
+  .afz-admin__fields { grid-template-columns: 1fr; }
+}

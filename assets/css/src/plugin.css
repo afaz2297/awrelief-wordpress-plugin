@@ -1,0 +1,106 @@
+/* Logo masks: gold artwork extracted from the client logo */
+.afz .gold-mask--emblem { --mask: url("../img/emblem-mask.webp"); aspect-ratio: 680 / 665; }
+.afz .gold-mask--wordmark { --mask: url("../img/wordmark-mask.webp"); aspect-ratio: 680 / 125; }
+
+/* Elementor wrappers: the design owns all spacing */
+.elementor .e-con.afz-flush, .elementor .e-con.afz-sheet { --padding-top: 0px; --padding-right: 0px; --padding-bottom: 0px; --padding-left: 0px; --gap: 0px 0px; --row-gap: 0px; --column-gap: 0px; --widgets-spacing: 0px 0px; padding: 0; gap: 0; }
+.elementor .e-con.afz-flush > .e-con-inner, .elementor .e-con.afz-sheet > .e-con-inner { max-width: none; padding: 0; gap: 0; }
+.elementor-widget:has(> .afz), .elementor-element:has(> .afz) { width: 100%; }
+.afz { position: relative; }
+
+/* cream "sheets" as Elementor containers (CSS classes: afz-sheet light) */
+.e-con.afz-sheet { position: relative; z-index: 1; background: var(--cream); border-radius: 48px; box-shadow: 0 -40px 80px -40px rgba(0,0,0,.6); color: var(--text-dark); }
+
+/* Editor: no preloader, pins or hidden reveal states */
+.elementor-editor-active .afz .manifesto__text .word { opacity: 1; }
+.elementor-editor-active .afz .story__figure { clip-path: none; }
+.elementor-editor-active .afz .story__figure img { opacity: 1; filter: none; }
+.elementor-editor-active .afz .repel__arch { clip-path: none; }
+.elementor-editor-active .afz .ritual__pin { height: auto; min-height: 0; padding: 100px 0; }
+.elementor-editor-active .afz .ritual__steps { display: flex; flex-direction: column; gap: 34px; min-height: 0; }
+.elementor-editor-active .afz .ritual__step { opacity: 1; transform: none; }
+.elementor-editor-active .afz .library__pin { height: auto; min-height: 0; }
+.elementor-editor-active .afz .library__viewport { overflow-x: auto; }
+.elementor-editor-active .afz .announce, .elementor-editor-active .afz .header { position: relative; top: 0; }
+.elementor-editor-active .afz .header::before { opacity: 1; }
+
+/* Search overlay */
+.afz .search { position: fixed; inset: 0; z-index: 92; display: grid; grid-template-columns: minmax(0, 1fr); justify-items: center; align-content: start; padding: calc(var(--header-h) + 6vh) var(--gutter) 0; background: rgba(7,6,5,.94); opacity: 0; pointer-events: none; transition: opacity .5s var(--ease); }
+body.search-open .afz .search { opacity: 1; pointer-events: auto; }
+.afz .search__form { width: min(900px, 100%); display: flex; align-items: center; gap: 16px; border-bottom: 1px solid var(--line-strong); padding-bottom: 14px; transform: translateY(20px); transition: transform .7s var(--ease); }
+body.search-open .afz .search__form { transform: none; }
+.afz .search__form input { flex: 1; min-width: 0; background: none; border: 0; outline: 0; color: var(--ivory); font: 500 clamp(32px, 5vw, 64px)/1.1 var(--f-display); font-variation-settings: 'opsz' 24; }
+.afz .search__form input::placeholder { color: var(--muted); }
+.afz .search__close { position: absolute; top: 24px; right: var(--gutter); }
+.afz .search__hint { width: min(900px, 100%); margin-top: 18px; color: var(--muted); }
+
+/* Welcome popup */
+.afz .popup { position: fixed; inset: 0; z-index: 96; display: grid; place-items: center; padding: 20px; pointer-events: none; }
+.afz .popup__veil { position: absolute; inset: 0; background: rgba(5,4,3,.7); opacity: 0; transition: opacity .6s var(--ease); }
+.afz .popup__card { position: relative; width: min(860px, 100%); display: grid; grid-template-columns: 1fr 1.1fr; border-radius: 28px; overflow: hidden; background: var(--ink-2); border: 1px solid var(--line-strong); box-shadow: 0 60px 120px -40px rgba(0,0,0,.8); opacity: 0; transform: translateY(40px) scale(.97); transition: opacity .7s var(--ease), transform .9s var(--ease); }
+body.popup-open .afz .popup { pointer-events: auto; }
+body.popup-open .afz .popup__veil { opacity: 1; }
+body.popup-open .afz .popup__card { opacity: 1; transform: none; }
+.afz .popup__media { position: relative; min-height: 420px; background: var(--ink-3); }
+.afz .popup__media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.afz .popup__media::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent 50%, var(--ink-2)); }
+.afz .popup__body { padding: clamp(30px, 4vw, 54px); display: flex; flex-direction: column; justify-content: center; }
+.afz .popup__title { font-size: clamp(38px, 4vw, 58px); letter-spacing: -.03em; margin-bottom: 18px; }
+.afz .popup__text { color: var(--ivory-2); margin-bottom: 28px; }
+.afz .popup .news__form { margin: 0; max-width: none; }
+.afz .popup__small { margin-top: 16px; color: var(--muted); font-size: 11px; }
+.afz .popup__close { position: absolute; top: 16px; right: 16px; z-index: 2; width: 44px; height: 44px; background: rgba(12,11,9,.6); }
+.afz .popup__code { display: inline-flex; gap: 10px; align-items: center; margin-top: 6px; padding: 10px 16px; border: 1px dashed var(--gold); border-radius: 12px; color: var(--gold-hi); font: 500 18px var(--f-mono); letter-spacing: .12em; }
+
+/* Cookie banner */
+.afz .cookies { position: fixed; left: 20px; bottom: 20px; z-index: 89; width: min(440px, calc(100vw - 40px)); padding: 22px 24px; border-radius: 20px; background: rgba(19,17,14,.97); border: 1px solid var(--line-strong); box-shadow: 0 30px 60px -20px rgba(0,0,0,.7); transform: translateY(140%); transition: transform .9s var(--ease); }
+.afz .cookies.is-open { transform: none; }
+.afz .cookies p { color: var(--ivory-2); font-size: 14px; line-height: 1.55; margin-bottom: 16px; }
+.afz .cookies a { color: var(--gold-hi); text-decoration: underline; text-underline-offset: 3px; }
+.afz .cookies__actions { display: flex; gap: 10px; }
+.afz .cookies .btn { --h: 44px; padding: 0 20px; font-size: 11px; }
+
+/* Forms (contact, track order) */
+.afz .field { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+.afz .field label { font: 400 11px var(--f-mono); letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+.afz .field input, .afz .field textarea, .afz .field select { width: 100%; background: rgba(12,11,9,.4); border: 1px solid var(--line-strong); border-radius: 14px; padding: 16px 18px; color: var(--ivory); font: 300 16px var(--f-body); outline: 0; transition: border-color .4s; }
+.afz .light .field input, .afz .light .field textarea, .light .afz .field input, .light .afz .field textarea { background: var(--paper); border-color: var(--line-dark); color: var(--text-dark); }
+.afz .field input:focus, .afz .field textarea:focus { border-color: var(--gold); }
+.afz .form-note { margin-top: 14px; font-size: 14px; }
+.afz .form-note.is-error { color: #e58b74; }
+.afz .form-note.is-ok { color: var(--gold-hi); }
+.afz .hp { position: absolute !important; left: -9999px !important; }
+
+/* Basket and form states driven by afazalif.js */
+.afz .cart-item__name { display: block; }
+.afz .cart-item { transition: opacity .3s; }
+.afz .qty button:disabled { opacity: .35; cursor: not-allowed; }
+.afz .news__form.is-busy, .afz .prod__add.is-busy, .afz .btn.is-busy { opacity: .7; pointer-events: none; }
+.afz .news__form.is-invalid { border-color: #e58b74; }
+.afz .prod__name a { color: inherit; }
+
+@media (max-width: 700px) {
+  .afz .popup { place-items: end center; padding: 12px; }
+  .afz .popup__card { grid-template-columns: 1fr; max-height: calc(100dvh - 24px); overflow: auto; }
+  .afz .popup__media { min-height: 0; height: 170px; }
+  .afz .popup__media::after { background: linear-gradient(180deg, transparent 40%, var(--ink-2)); }
+  .afz .popup__body { padding: 22px 22px 26px; }
+  .afz .popup__title { font-size: 36px; }
+  .afz .popup .news__form { padding-left: 18px; }
+  .afz .cookies { left: 12px; right: 12px; bottom: 12px; width: auto; padding: 18px; }
+  .afz .cookies p { font-size: 13px; margin-bottom: 12px; }
+  .afz .search__form input { font-size: 30px; }
+}
+
+/* WordPress screen-reader text (Hello's own stylesheet that hid it is not loaded) */
+.screen-reader-text, .afz .screen-reader-text { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0, 0, 0, 0) !important; white-space: nowrap !important; border: 0 !important; }
+.screen-reader-text:focus { clip: auto !important; width: auto !important; height: auto !important; z-index: 100000; padding: 12px 18px !important; background: #0c0b09; color: #f3dc9a; top: 10px; left: 10px; }
+
+/* line reveals: more room below each line so descenders (g, p, y) are never clipped */
+.afz .hero__title .line { padding-bottom: .16em; margin-bottom: -.12em; }
+.afz [data-split="lines"] .line { padding-bottom: .14em; margin-bottom: -.08em; }
+/* scent cards: the ingredient image stays inside its half of the card, text always on top */
+.afz .scent__visual { padding: 10px 0 14px; }
+.afz .scent__img { height: 78%; }
+.afz .scent:hover .scent__img { transform: scale(1.05) rotate(-2deg); }
+.afz .scent__body { position: relative; z-index: 1; }
