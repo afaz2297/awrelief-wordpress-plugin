@@ -82,6 +82,10 @@ class AFZ_Frontend {
 				'spend'    => __( 'Spend <b>%s</b> more for <b>free UK delivery</b>', 'afazalif' ),
 				'unlocked' => __( '<b>You\'ve unlocked free UK delivery ✦</b>', 'afazalif' ),
 				'error'    => __( 'Something went wrong. Please try again.', 'afazalif' ),
+				'products' => __( 'Products', 'afazalif' ),
+				'scents'   => __( 'Scents', 'afazalif' ),
+				'none'     => __( 'Nothing matches “%s” yet. Try a scent name like Heaven or Chill.', 'afazalif' ),
+				'all'      => __( 'See all %d results', 'afazalif' ),
 			),
 		);
 	}

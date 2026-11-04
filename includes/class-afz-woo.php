@@ -29,6 +29,13 @@ class AFZ_Woo {
 		add_filter( 'woocommerce_breadcrumb_defaults', array( $this, 'breadcrumb' ) );
 		add_action( 'woocommerce_before_cart_totals', array( $this, 'meter' ) );
 		add_filter( 'woocommerce_package_rates', array( $this, 'free_beats_standard' ), 100 );
+		add_action( 'wc_ajax_afz_search', array( $this, 'live_search' ) );
+		// after WooCommerce's own product query, which resets post__in and the sort order
+		add_action( 'pre_get_posts', array( $this, 'product_search' ), 20 );
+		// reviews pasted from a phone app carry "object replacement" characters that show as [OBJ]
+		add_filter( 'comment_text', function ( $text ) {
+			return str_replace( "\u{FFFC}", '', $text );
+		}, 5 );
 		add_action( 'woocommerce_review_order_before_order_total', array( $this, 'meter_row' ) );
 		add_filter( 'woocommerce_output_related_products_args', function ( $a ) {
 			$a['posts_per_page'] = 4;
@@ -157,6 +164,99 @@ class AFZ_Woo {
 		if ( $left > 0 && $left < $free ) {
 			echo '<tr class="afz-near-free"><td colspan="2">' . wp_kses_post( sprintf( __( 'Add <b>%s</b> more for free UK delivery', 'afazalif' ), afz_money( $left ) ) ) . '</td></tr>';
 		}
+	}
+
+	/* ---------- search ---------- */
+
+	/**
+	 * Product IDs for a search, best match first: product names, then scent and category names,
+	 * then short descriptions. Long descriptions are skipped on purpose: every candle's care
+	 * text mentions "children", so "chil" used to return the whole shop instead of Chill.
+	 */
+	public static function search_ids( $q, $limit = 60 ) {
+		global $wpdb;
+		$q = trim( wp_strip_all_tags( (string) $q ) );
+		if ( mb_strlen( $q ) < 2 ) {
+			return array();
+		}
+		$like  = '%' . $wpdb->esc_like( $q ) . '%';
+		$start = $wpdb->esc_like( $q ) . '%';
+		$rows  = $wpdb->get_results( $wpdb->prepare(
+			"SELECT ID, CASE WHEN post_title LIKE %s THEN 0 WHEN post_title LIKE %s THEN 1 ELSE 3 END AS score
+			 FROM $wpdb->posts WHERE post_type = 'product' AND post_status = 'publish' AND (post_title LIKE %s OR post_excerpt LIKE %s)",
+			$start, $like, $like, $like
+		) );
+		$score = array();
+		foreach ( $rows as $r ) {
+			$score[ (int) $r->ID ] = (int) $r->score;
+		}
+		// scent ("Chill") and category ("Candles") names
+		$terms = get_terms( array( 'taxonomy' => array( AFZ_Scents::TAX, 'product_cat' ), 'name__like' => $q, 'hide_empty' => true, 'fields' => 'ids' ) );
+		if ( $terms && ! is_wp_error( $terms ) ) {
+			$ids = get_posts( array(
+				'post_type'   => 'product',
+				'post_status' => 'publish',
+				'numberposts' => -1,
+				'fields'      => 'ids',
+				'tax_query'   => array( 'relation' => 'OR', array( 'taxonomy' => AFZ_Scents::TAX, 'terms' => $terms ), array( 'taxonomy' => 'product_cat', 'terms' => $terms ) ), // phpcs:ignore
+			) );
+			foreach ( $ids as $id ) {
+				$score[ (int) $id ] = min( $score[ (int) $id ] ?? 9, 2 );
+			}
+		}
+		$ids = array_keys( $score );
+		usort( $ids, function ( $a, $b ) use ( $score ) {
+			return $score[ $a ] <=> $score[ $b ] ?: strcmp( get_the_title( $a ), get_the_title( $b ) );
+		} );
+		return array_slice( $ids, 0, $limit );
+	}
+
+	/** The shop's search results page uses the same ranked lookup. */
+	public function product_search( $query ) {
+		if ( is_admin() || ! $query->is_main_query() || ! $query->is_search() || 'product' !== $query->get( 'post_type' ) ) {
+			return;
+		}
+		$ids = self::search_ids( $query->get( 's' ), 200 );
+		$query->set( 'post__in', $ids ? $ids : array( 0 ) );
+		// best match first, unless the shopper picked a sort order
+		if ( empty( $_GET['orderby'] ) || 'relevance' === $_GET['orderby'] ) { // phpcs:ignore WordPress.Security.NonceVerification
+			$query->set( 'orderby', 'post__in' );
+			$query->set( 'order', 'ASC' );
+		}
+		add_filter( 'posts_search', array( $this, 'skip_content_search' ), 10, 2 );
+	}
+
+	public function skip_content_search( $search, $query ) {
+		return $query->is_main_query() ? '' : $search;
+	}
+
+	/** Search as you type: products and scents for the search panel. */
+	public function live_search() {
+		check_ajax_referer( 'afz', 'nonce' );
+		$q   = sanitize_text_field( wp_unslash( $_POST['q'] ?? '' ) );
+		$ids = self::search_ids( $q, 60 );
+		$out = array( 'products' => array(), 'scents' => array(), 'total' => count( $ids ), 'all' => add_query_arg( array( 's' => rawurlencode( $q ), 'post_type' => 'product' ), home_url( '/' ) ) );
+		foreach ( array_slice( $ids, 0, 6 ) as $id ) {
+			$p = wc_get_product( $id );
+			if ( ! $p ) {
+				continue;
+			}
+			$sc                = AFZ_Scents::of_product( $id );
+			$label             = AFZ_Scents::format_label( $p );
+			$out['products'][] = array(
+				'name'  => $p->get_name(),
+				'url'   => $p->get_permalink(),
+				'img'   => $p->get_image_id() ? wp_get_attachment_image_url( $p->get_image_id(), 'woocommerce_gallery_thumbnail' ) : wc_placeholder_img_src(),
+				'price' => wp_strip_all_tags( html_entity_decode( $p->get_price_html() ) ),
+				'meta'  => trim( ( 'Diffuser' === $label ? 'Reed Diffuser' : $label ) . ( $sc ? ' · ' . $sc['family'] : '' ), ' ·' ),
+			);
+		}
+		$scents = get_terms( array( 'taxonomy' => AFZ_Scents::TAX, 'name__like' => $q, 'hide_empty' => false, 'number' => 4 ) );
+		foreach ( is_wp_error( $scents ) ? array() : $scents as $t ) {
+			$d               = AFZ_Scents::data( $t );
+			$out['scents'][] = array( 'name' => $d['name'], 'url' => $d['url'], 'family' => $d['family'], 'aura' => $d['aura'], 'img' => $d['image'] ? wp_get_attachment_image_url( (int) $d['image'], 'thumbnail' ) : '' );
+		}
+		wp_send_json_success( $out );
 	}
 
 	/* ---------- shared pieces ---------- */

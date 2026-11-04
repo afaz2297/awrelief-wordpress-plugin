@@ -395,3 +395,42 @@
 .afz .pdp__buy .wps_wgm_delivery_via_email { flex-basis: 100%; }
 /* scent cards: gentler hover so the ingredient image never covers the name */
 .afz .scent:hover .scent__img { transform: scale(1.03) rotate(-1.5deg); }
+
+/* ---------- product reviews: summary card (Customer Reviews plugin) ---------- */
+.afz .pdp-reviews #reviews .cr-summaryBox-wrap { display: grid; grid-template-columns: minmax(220px, .8fr) 1.6fr; align-items: center; gap: clamp(24px, 4vw, 70px); margin: 0 0 40px; padding: clamp(26px, 3.4vw, 46px) clamp(26px, 4vw, 56px); border-radius: 28px; background: radial-gradient(70% 120% at 0% 0%, rgba(201,160,74,.18), transparent 60%), var(--ink-2); border: 1px solid var(--line); color: var(--ivory); box-shadow: 0 40px 70px -50px rgba(40,28,8,.7); }
+.afz .pdp-reviews #reviews .cr-overall-rating-wrap { width: auto; flex: none; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; margin: 0; padding: 0; border: 0; background: none; }
+.afz .pdp-reviews #reviews .cr-average-rating span { font: 500 clamp(64px, 6vw, 92px)/.9 var(--f-display); font-variation-settings: 'opsz' 24; letter-spacing: -.03em; color: transparent; background: var(--gold-grad); -webkit-background-clip: text; background-clip: text; }
+.afz .pdp-reviews .crstar-rating-svg { position: relative; display: inline-block; }
+.afz .pdp-reviews #reviews .cr-rating-icon-base, .afz .pdp-reviews #reviews .cr-rating-icon-frnt { display: flex; gap: 4px; }
+.afz .pdp-reviews #reviews .cr-rating-icon-frnt { position: absolute; inset: 0; overflow: hidden; white-space: nowrap; }
+.afz .pdp-reviews .crstar-rating-svg svg { width: 20px; height: 20px; flex: 0 0 auto; }
+.afz .pdp-reviews #reviews .cr-rating-icon-base svg { color: rgba(239,230,214,.16); }
+.afz .pdp-reviews #reviews .cr-rating-icon-frnt svg { color: var(--gold); }
+.afz .pdp-reviews #reviews .cr-total-rating-count { font: 400 11px var(--f-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.afz .pdp-reviews #reviews .ivole-summaryBox { flex: none; margin: 0; padding: 0; border: 0; background: none; width: 100%; }
+.afz .pdp-reviews #reviews .cr-histogramTable { display: grid; gap: 12px; width: 100%; margin: 0; border: 0; }
+.afz .pdp-reviews #reviews .ivole-histogramRow { display: grid; grid-template-columns: 46px 1fr 48px; align-items: center; gap: 14px; }
+.afz .pdp-reviews #reviews .ivole-histogramRow > div { padding: 0; border: 0; }
+.afz .pdp-reviews #reviews .cr-histogram-rating-label { display: inline-flex; align-items: center; gap: 6px; font: 400 13px var(--f-mono); color: var(--ivory-2); }
+.afz .pdp-reviews #reviews .cr-histogram-rating-label svg { width: 13px; height: 13px; color: var(--gold); }
+.afz .pdp-reviews #reviews .ivole-meter { height: 8px; margin: 0; padding: 0; border: 0; border-radius: 8px; background: rgba(239,230,214,.1); box-shadow: none; overflow: hidden; }
+.afz .pdp-reviews #reviews .ivole-meter-bar { height: 100%; border-radius: 8px; background: var(--gold-grad); background-size: 200% 100%; box-shadow: 0 0 14px rgba(243,220,154,.4); font-size: 0; color: transparent; transition: width 1.2s var(--ease); }
+.afz .pdp-reviews #reviews .ivole-histogramCell3 { font: 400 12px var(--f-mono); color: var(--muted); text-align: right; }
+.afz .pdp-reviews #reviews .cr-histogram-a { cursor: pointer; }
+.afz .pdp-reviews #reviews .ivole-histogramRow:hover .cr-histogram-rating-label, .afz .pdp-reviews #reviews .ivole-histogramRow:hover .ivole-histogramCell3 { color: var(--gold-hi); }
+
+/* WooCommerce review items share the class "review" with the homepage slider cards: undo the slider look */
+.afz .pdp-reviews .commentlist .review { flex: none; padding: 0; border: 0; border-radius: 0; background: none; opacity: 1; transform: none; filter: none; }
+.afz .pdp-reviews #reviews .cr-voting-cont { display: flex; align-items: center; gap: 8px; margin-top: 18px; color: var(--muted-dark); font: 400 11px var(--f-mono); }
+.afz .pdp-reviews #reviews .cr-voting-cont svg { width: 16px; height: 16px; color: var(--muted-dark); }
+.afz .pdp-reviews #reviews .cr-voting-a { cursor: pointer; }
+.afz .pdp-reviews #reviews .cr-voting-a:hover svg { color: var(--gold-lo); }
+@media (max-width: 760px) { .afz .pdp-reviews #reviews .cr-summaryBox-wrap { grid-template-columns: 1fr; } }
+/* CusRev caps its bars at 320px and paints stars amber; the card wants full-width gold bars */
+.afz .pdp-reviews #reviews .cr-summaryBox-wrap .cr-histogramTable { max-width: none; }
+.afz .pdp-reviews #reviews .crstar-rating-svg .cr-rating-icon-frnt .cr-rating-icon { fill: var(--gold); }
+.afz .pdp-reviews #reviews .crstar-rating-svg .cr-rating-icon-base .cr-rating-icon-bg { stroke: rgba(239,230,214,.22); }
+.afz .pdp-reviews #reviews .cr-average-rating-stars .cr-rating-icon, .afz .pdp-reviews #reviews .cr-average-rating-stars .cr-rating-icon-bg { width: 22px; height: 22px; }
+.afz .pdp-reviews #reviews .ivole-histogramRow .cr-histogram-a { color: inherit; }
+.afz .pdp-reviews #reviews .ivole-histogramRow:first-child .ivole-histogramCell3 { color: var(--gold-hi); }
+.afz .pdp-reviews #reviews .cr-histogramTable .ivole-histogramRow .ivole-histogramCell2 { width: auto; }

@@ -108,7 +108,7 @@ while ( have_posts() ) :
 
 			<div class="sheet light pdp-sheet">
 				<?php if ( comments_open() || $afz_count ) : ?>
-					<section class="pdp-reviews wrap" id="reviews">
+					<section class="pdp-reviews wrap">
 						<div class="sec-head">
 							<p class="eyebrow eyebrow--dark"><?php esc_html_e( 'Kind words', 'afazalif' ); ?></p>
 							<h2 class="display sec-head__title" data-split="lines"><?php echo $afz_count ? esc_html( number_format( (float) $product->get_average_rating(), 1 ) ) . ' <em>' . esc_html__( 'out of five', 'afazalif' ) . '</em>' : esc_html__( 'Be the first', 'afazalif' ) . ' <em>' . esc_html__( 'to review', 'afazalif' ) . '</em>'; ?></h2>

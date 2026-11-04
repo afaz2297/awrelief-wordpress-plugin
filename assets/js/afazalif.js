@@ -194,7 +194,8 @@
   /* ---------------------------------------------------------
      Search overlay
      --------------------------------------------------------- */
-  const search = $('.search');
+  // not ".search": WordPress puts that class on <body> on search result pages
+  const search = $('.search-panel');
   const openSearch = v => {
     if (!search) return;
     body.classList.toggle('search-open', v); search.setAttribute('aria-hidden', !v); lock(v);
@@ -202,8 +203,8 @@
   };
   $$('[data-open-search]').forEach(b => b.addEventListener('click', () => openSearch(true)));
   $$('[data-close-search]').forEach(b => b.addEventListener('click', () => openSearch(false)));
-  // a click anywhere outside the search field closes the panel
-  if (search) search.addEventListener('click', e => { if (!e.target.closest('.search__form')) openSearch(false); });
+  // a click anywhere outside the search field and its results closes the panel
+  if (search) search.addEventListener('click', e => { if (!e.target.closest('.search__form, .search__results')) openSearch(false); });
 
   /* ---------------------------------------------------------
      Cursor + magnetic + tilt
@@ -496,12 +497,69 @@
   };
 
   /* ---------------------------------------------------------
+     Live search: products and scents as you type
+     --------------------------------------------------------- */
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const liveInput = search && $('input[type="search"]', search);
+  const liveOut = search && $('.search__results', search);
+  if (liveInput && liveOut) {
+    const t = C.i18n || {};
+    let timer, last = '', seq = 0;
+    const render = (d, q) => {
+      if (!d.products.length && !d.scents.length) {
+        liveOut.innerHTML = `<p class="search__empty">${esc((t.none || 'Nothing matches “%s”.').replace('%s', q))}</p>`;
+        return;
+      }
+      let html = '';
+      if (d.scents.length) {
+        html += `<p class="mono search__label">${esc(t.scents || 'Scents')}</p><div class="search__scents">` + d.scents.map(s =>
+          `<a class="search__scent" href="${esc(s.url)}" style="--aura:${esc(s.aura)}">${s.img ? `<img src="${esc(s.img)}" alt="" loading="lazy">` : '<i></i>'}<span>${esc(s.name)}<small>${esc(s.family || '')}</small></span></a>`
+        ).join('') + '</div>';
+      }
+      if (d.products.length) {
+        html += `<p class="mono search__label">${esc(t.products || 'Products')}</p><ul class="search__list">` + d.products.map(p =>
+          `<li><a class="search__item" href="${esc(p.url)}"><img src="${esc(p.img)}" alt="" loading="lazy"><span class="search__name">${esc(p.name)}<small>${esc(p.meta)}</small></span><span class="search__price">${esc(p.price)}</span></a></li>`
+        ).join('') + '</ul>';
+      }
+      if (d.total > d.products.length) html += `<a class="link-arrow search__all" href="${esc(d.all)}">${esc((t.all || 'See all %d results').replace('%d', d.total))} <span>→</span></a>`;
+      liveOut.innerHTML = html;
+    };
+    liveInput.addEventListener('input', () => {
+      const q = liveInput.value.trim();
+      clearTimeout(timer);
+      if (q === last) return;
+      last = q;
+      if (q.length < 2) { liveOut.innerHTML = ''; search.classList.remove('has-results', 'is-loading'); return; }
+      search.classList.add('is-loading');
+      timer = setTimeout(() => {
+        const id = ++seq;
+        post('afz_search', { q }).then(r => {
+          if (id !== seq || !r || !r.success) return; // a newer keystroke already asked again
+          render(r.data, q);
+          search.classList.add('has-results');
+        }).catch(() => {}).finally(() => { if (id === seq) search.classList.remove('is-loading'); });
+      }, 220);
+    });
+    // arrow down from the field steps into the results
+    liveInput.addEventListener('keydown', e => {
+      if (e.key === 'ArrowDown') { const a = $('a', liveOut); if (a) { e.preventDefault(); a.focus(); } }
+    });
+    liveOut.addEventListener('keydown', e => {
+      if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+      const links = $$('a', liveOut), i = links.indexOf(document.activeElement);
+      if (i < 0) return;
+      e.preventDefault();
+      const n = i + (e.key === 'ArrowDown' ? 1 : -1);
+      (n < 0 ? liveInput : links[Math.min(n, links.length - 1)]).focus();
+    });
+  }
+
+  /* ---------------------------------------------------------
      Basket: fly-to-basket, side drawer, free-delivery progress
      --------------------------------------------------------- */
   const cartEl = $('.cart-drawer'), list = $('.cart__items'), basket = $('.basket-btn');
   const FREE = Number(C.freeShip) || 0;
   let justAdded = null; // only the newly added line slides in; +/- re-renders stay still
-  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   function renderCart(state) {
     if (!cartEl || !state) return;
     list.innerHTML = state.items.map(it => `<li class="cart-item${it.id === justAdded ? ' is-new' : ''}">
@@ -652,6 +710,115 @@
   $$('[data-afz-jump]').forEach(sel => sel.addEventListener('change', () => { if (sel.value) location.href = sel.value; }));
   // sorting: WooCommerce submits the form on change
   $$('.woocommerce-ordering select').forEach(sel => sel.addEventListener('change', () => sel.form && sel.form.submit()));
+
+  /* ---------------------------------------------------------
+     Styled dropdowns. The native select stays in the form and keeps its
+     change handlers; a combobox button and option list draw it on brand.
+     --------------------------------------------------------- */
+  let openDrop = null;
+  const closeDrop = focus => {
+    if (!openDrop) return;
+    const d = openDrop; openDrop = null;
+    d.wrap.classList.remove('is-open'); d.btn.setAttribute('aria-expanded', 'false'); d.btn.removeAttribute('aria-activedescendant');
+    if (focus) d.btn.focus();
+  };
+  document.addEventListener('click', e => { if (openDrop && !openDrop.wrap.contains(e.target)) closeDrop(); });
+  $$('.shop-bar__select, .woocommerce-ordering select, .contact__form select').forEach((sel, n) => {
+    const id = sel.id || 'afz-select-' + n;
+    const wrap = document.createElement('div');
+    wrap.className = 'afz-select afz-select--' + (sel.closest('.contact__form') ? 'field' : 'pill');
+    const btn = document.createElement('button');
+    btn.type = 'button'; btn.id = id + '-btn'; btn.className = 'afz-select__btn';
+    btn.setAttribute('role', 'combobox'); btn.setAttribute('aria-haspopup', 'listbox'); btn.setAttribute('aria-expanded', 'false');
+    const value = document.createElement('span');
+    value.className = 'afz-select__value'; value.id = id + '-value';
+    btn.appendChild(value);
+    const list = document.createElement('ul');
+    list.className = 'afz-select__list'; list.id = id + '-list'; list.setAttribute('role', 'listbox'); list.setAttribute('data-lenis-prevent', '');
+    btn.setAttribute('aria-controls', list.id);
+    // the visible label (or the select's aria-label) names both the button and the list
+    const label = sel.id && document.querySelector(`label[for="${sel.id}"]`);
+    if (label) {
+      label.id = label.id || id + '-label'; label.htmlFor = btn.id;
+      btn.setAttribute('aria-labelledby', label.id + ' ' + value.id); list.setAttribute('aria-labelledby', label.id);
+    } else if (sel.getAttribute('aria-label')) {
+      const sr = document.createElement('span'); sr.className = 'sr-only'; sr.textContent = sel.getAttribute('aria-label') + ': ';
+      btn.prepend(sr); list.setAttribute('aria-label', sel.getAttribute('aria-label'));
+    }
+    const items = [...sel.options].map((o, i) => {
+      const li = document.createElement('li');
+      li.id = id + '-opt-' + i; li.className = 'afz-select__opt'; li.setAttribute('role', 'option'); li.dataset.i = i;
+      li.textContent = o.textContent.trim();
+      if (o.dataset.aura) { li.classList.add('has-aura'); li.style.setProperty('--aura', o.dataset.aura); }
+      list.appendChild(li);
+      return li;
+    });
+    sel.parentNode.insertBefore(wrap, sel);
+    wrap.append(sel, btn, list);
+    sel.classList.add('afz-select__native'); sel.tabIndex = -1; sel.setAttribute('aria-hidden', 'true');
+
+    let active = 0, typed = '', typedAt = 0, skipClick = 0;
+    const sync = () => {
+      const o = sel.options[sel.selectedIndex];
+      value.textContent = o ? o.textContent.trim() : '';
+      items.forEach((li, i) => li.setAttribute('aria-selected', i === sel.selectedIndex ? 'true' : 'false'));
+    };
+    const highlight = i => {
+      active = Math.max(0, Math.min(items.length - 1, i));
+      items.forEach((li, k) => li.classList.toggle('is-active', k === active));
+      btn.setAttribute('aria-activedescendant', items[active].id);
+      const li = items[active]; // keep it in view without scrolling the page
+      if (li.offsetTop < list.scrollTop) list.scrollTop = li.offsetTop - 8;
+      else if (li.offsetTop + li.offsetHeight > list.scrollTop + list.clientHeight) list.scrollTop = li.offsetTop + li.offsetHeight - list.clientHeight + 8;
+    };
+    const open = () => {
+      if (openDrop) closeDrop();
+      openDrop = { wrap, btn };
+      // open upwards or right-aligned when the list would run off screen
+      const r = btn.getBoundingClientRect();
+      wrap.classList.toggle('is-up', r.bottom + Math.min(340, items.length * 44 + 16) > window.innerHeight - 12 && r.top > window.innerHeight / 2);
+      wrap.classList.toggle('is-right', r.left + Math.max(r.width, 240) > document.documentElement.clientWidth - 12);
+      wrap.classList.add('is-open'); btn.setAttribute('aria-expanded', 'true');
+      list.scrollTop = 0;
+      highlight(Math.max(0, sel.selectedIndex));
+    };
+    const choose = i => {
+      if (i !== sel.selectedIndex) {
+        sel.selectedIndex = i; sync();
+        sel.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+      closeDrop(true);
+    };
+    btn.addEventListener('click', () => {
+      if (Date.now() < skipClick) return; // the keyup "click" right after choosing with Space
+      wrap.classList.contains('is-open') ? closeDrop() : open();
+    });
+    list.addEventListener('click', e => { const li = e.target.closest('[role="option"]'); if (li) choose(+li.dataset.i); });
+    list.addEventListener('mousemove', e => { const li = e.target.closest('[role="option"]'); if (li && +li.dataset.i !== active) highlight(+li.dataset.i); });
+    btn.addEventListener('keydown', e => {
+      const isOpen = wrap.classList.contains('is-open');
+      const k = e.key;
+      if (['ArrowDown', 'ArrowUp', 'Home', 'End', 'PageDown', 'PageUp'].includes(k)) {
+        e.preventDefault();
+        if (!isOpen) { open(); return; }
+        highlight(k === 'Home' ? 0 : k === 'End' ? items.length - 1 : active + ({ ArrowDown: 1, ArrowUp: -1, PageDown: 6, PageUp: -6 }[k]));
+      } else if ((k === 'Enter' || k === ' ') && isOpen) {
+        e.preventDefault(); skipClick = Date.now() + 400; choose(active);
+      } else if (k === 'Escape' && isOpen) {
+        e.preventDefault(); closeDrop(true);
+      } else if (k === 'Tab' && isOpen) {
+        closeDrop();
+      } else if (k.length === 1 && /\S/.test(k) && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        // type-ahead: "h" jumps to Heaven
+        typed = (Date.now() - typedAt > 700 ? '' : typed) + k.toLowerCase(); typedAt = Date.now();
+        const i = items.findIndex(li => li.textContent.toLowerCase().startsWith(typed));
+        if (i > -1) { if (!isOpen) open(); highlight(i); }
+      }
+    });
+    sel.addEventListener('change', sync);
+    window.addEventListener('pageshow', sync); // back button restores the old choice
+    sync();
+  });
 
   /* ---------------------------------------------------------
      Newsletter forms (section + popup)

@@ -10,6 +10,7 @@ Requires WordPress 6.4+, PHP 7.4+, WooCommerce, Elementor (and Pro Elements for 
 |---|---|
 | 21 Elementor widgets (category "AWRELIEF") | `includes/widgets/` |
 | Shop, product, basket, checkout and account layouts | `includes/class-afz-woo.php`, `templates/woo/` |
+| Live product search (WooCommerce AJAX `wc-ajax=afz_search`) | `includes/class-afz-woo.php`, `templates/search.php` |
 | Basket drawer (WooCommerce AJAX `wc-ajax=afz_cart`) | `includes/class-afz-cart.php`, `templates/cart.php` |
 | Scents taxonomy (notes, aura colours, ingredient image) | `includes/class-afz-scents.php` |
 | Newsletter (MailerLite + local copy) and contact form with saved messages | `includes/class-afz-forms.php` |
