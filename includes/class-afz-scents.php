@@ -128,7 +128,7 @@ class AFZ_Scents {
 
 	/** The formats a scent comes in (by product category) with the lowest price of each. */
 	public static function formats( $term_id ) {
-		$cache = get_transient( 'afz_formats_' . $term_id );
+		$cache = get_transient( 'afz_formats2_' . $term_id );
 		if ( is_array( $cache ) ) {
 			return $cache;
 		}
@@ -148,7 +148,7 @@ class AFZ_Scents {
 			$label = self::format_label( $p );
 			$price = (float) wc_get_price_to_display( $p );
 			if ( ! isset( $out[ $label ] ) || $price < $out[ $label ]['price'] ) {
-				$out[ $label ] = array( 'label' => $label, 'price' => $price, 'url' => $p->get_permalink(), 'id' => $id );
+				$out[ $label ] = array( 'label' => $label, 'price' => $price, 'url' => $p->get_permalink(), 'id' => $id, 'img' => (int) $p->get_image_id() );
 			}
 		}
 		$order = array( 'Candle' => 1, 'Diffuser' => 2, 'Refill' => 3 );
@@ -156,7 +156,7 @@ class AFZ_Scents {
 			return ( $order[ $a['label'] ] ?? 9 ) <=> ( $order[ $b['label'] ] ?? 9 );
 		} );
 		$out = array_values( $out );
-		set_transient( 'afz_formats_' . $term_id, $out, DAY_IN_SECONDS );
+		set_transient( 'afz_formats2_' . $term_id, $out, DAY_IN_SECONDS );
 		return $out;
 	}
 
@@ -222,7 +222,7 @@ class AFZ_Scents {
 			$v = 'color' === $f[1] ? sanitize_hex_color( $v ) : ( in_array( $f[1], array( 'image', 'number' ), true ) ? (string) absint( $v ) : sanitize_text_field( $v ) );
 			update_term_meta( $term_id, 'afz_' . $key, $v );
 		}
-		delete_transient( 'afz_formats_' . $term_id );
+		delete_transient( 'afz_formats2_' . $term_id );
 	}
 
 	public function columns( $cols ) {
@@ -270,6 +270,6 @@ class AFZ_Scents {
 add_action( 'save_post_product', function ( $id ) {
 	$terms = wp_get_post_terms( $id, AFZ_Scents::TAX, array( 'fields' => 'ids' ) );
 	foreach ( is_array( $terms ) ? $terms : array() as $t ) {
-		delete_transient( 'afz_formats_' . $t );
+		delete_transient( 'afz_formats2_' . $t );
 	}
 } );

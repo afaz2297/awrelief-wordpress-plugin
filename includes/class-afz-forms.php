@@ -22,6 +22,7 @@ class AFZ_Forms {
 	private function __construct() {
 		add_action( 'wc_ajax_afz_subscribe', array( $this, 'subscribe' ) );
 		add_action( 'wc_ajax_afz_contact', array( $this, 'contact' ) );
+		add_action( 'wc_ajax_afz_return', array( $this, 'return_request' ) );
 		add_action( 'admin_menu', array( $this, 'menu' ), 20 );
 		add_action( 'admin_post_afz_export_subscribers', array( $this, 'export_subscribers' ) );
 		add_action( 'plugins_loaded', array( $this, 'maybe_install' ) );
@@ -205,6 +206,48 @@ class AFZ_Forms {
 		wp_send_json_success( array( 'message' => __( 'Thank you, we\'ll reply within one working day.', 'afazalif' ) ) );
 	}
 
+	/* ---------- return requests ---------- */
+
+	public function return_request() {
+		$this->guard( 'rt', 4 );
+		$name   = sanitize_text_field( wp_unslash( $_POST['name'] ?? '' ) );
+		$email  = sanitize_email( wp_unslash( $_POST['email'] ?? '' ) );
+		$order  = sanitize_text_field( wp_unslash( $_POST['order'] ?? '' ) );
+		$items  = sanitize_textarea_field( wp_unslash( $_POST['items'] ?? '' ) );
+		$reason = sanitize_text_field( wp_unslash( $_POST['reason'] ?? '' ) );
+		$notes  = sanitize_textarea_field( wp_unslash( $_POST['message'] ?? '' ) );
+		$number = absint( preg_replace( '/\D/', '', $order ) );
+		if ( '' === $name || ! is_email( $email ) || ! $number || '' === $items ) {
+			wp_send_json_error( array( 'message' => __( 'Please add your name, email, order number and the items you are returning.', 'afazalif' ) ), 400 );
+		}
+		// the result is only for the store: telling visitors would let them probe order numbers
+		$found   = wc_get_order( $number );
+		$matches = $found instanceof WC_Order && 0 === strcasecmp( (string) $found->get_billing_email(), $email );
+		$check   = $matches ? __( 'Order and email match', 'afazalif' ) : __( 'Could not match this order and email, please check', 'afazalif' );
+		$subject = sprintf( __( 'Return request, order #%d', 'afazalif' ), $number );
+		$message = sprintf( "%s\n\n%s: %s\n%s: %s\n%s: %s", $check, __( 'Items', 'afazalif' ), $items, __( 'Reason', 'afazalif' ), $reason, __( 'Notes', 'afazalif' ), $notes );
+		global $wpdb;
+		$wpdb->insert( self::table( 'entries' ), array(
+			'form'    => 'return',
+			'name'    => $name,
+			'email'   => $email,
+			'subject' => $subject,
+			'message' => $message,
+			'meta'    => wp_json_encode( array( 'order' => $number, 'matches' => $matches ) ),
+			'created' => current_time( 'mysql' ),
+		) );
+		if ( $matches ) {
+			$found->add_order_note( sprintf( __( 'Return requested by the customer. Items: %1$s. Reason: %2$s.', 'afazalif' ), $items, $reason ) );
+		}
+		wp_mail(
+			afz_opt( 'email', get_option( 'admin_email' ) ),
+			'[AWRELIEF] ' . $subject,
+			sprintf( "%s <%s>\n\n%s", $name, $email, $message ),
+			array( 'Reply-To: ' . $name . ' <' . $email . '>' )
+		);
+		wp_send_json_success( array( 'message' => __( 'Thank you, we have your return request and will email you the next steps within one working day.', 'afazalif' ) ) );
+	}
+
 	/* ---------- dashboard screens ---------- */
 
 	public function menu() {
@@ -232,7 +275,7 @@ class AFZ_Forms {
 			$wpdb->delete( $t, array( 'id' => absint( $_GET['delete'] ) ) );
 		}
 		$rows = $wpdb->get_results( "SELECT * FROM $t ORDER BY created DESC LIMIT 200" ); // phpcs:ignore
-		$this->screen_head( __( 'Messages', 'afazalif' ), __( 'Everything sent through the contact form. Each message is also emailed to the store address.', 'afazalif' ) );
+		$this->screen_head( __( 'Messages', 'afazalif' ), __( 'Everything sent through the contact and return forms. Each message is also emailed to the store address.', 'afazalif' ) );
 		echo '<table class="widefat striped"><thead><tr><th>' . esc_html__( 'Received', 'afazalif' ) . '</th><th>' . esc_html__( 'From', 'afazalif' ) . '</th><th>' . esc_html__( 'Subject', 'afazalif' ) . '</th><th>' . esc_html__( 'Message', 'afazalif' ) . '</th><th></th></tr></thead><tbody>';
 		if ( ! $rows ) {
 			echo '<tr><td colspan="5">' . esc_html__( 'No messages yet.', 'afazalif' ) . '</td></tr>';

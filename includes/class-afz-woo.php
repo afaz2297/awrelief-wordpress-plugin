@@ -29,6 +29,7 @@ class AFZ_Woo {
 		add_filter( 'woocommerce_breadcrumb_defaults', array( $this, 'breadcrumb' ) );
 		add_action( 'woocommerce_before_cart_totals', array( $this, 'meter' ) );
 		add_filter( 'woocommerce_package_rates', array( $this, 'free_beats_standard' ), 100 );
+		add_filter( 'woocommerce_my_account_my_orders_actions', array( $this, 'order_return_action' ), 10, 2 );
 		add_action( 'wc_ajax_afz_search', array( $this, 'live_search' ) );
 		// after WooCommerce's own product query, which resets post__in and the sort order
 		add_action( 'pre_get_posts', array( $this, 'product_search' ), 20 );
@@ -164,6 +165,31 @@ class AFZ_Woo {
 		if ( $left > 0 && $left < $free ) {
 			echo '<tr class="afz-near-free"><td colspan="2">' . wp_kses_post( sprintf( __( 'Add <b>%s</b> more for free UK delivery', 'afazalif' ), afz_money( $left ) ) ) . '</td></tr>';
 		}
+	}
+
+	/**
+	 * Product text without the old "Top: … / Middle: … / Base: …" lines, which the notes table
+	 * on the product page already shows. Prose that merely mentions "top notes" stays.
+	 */
+	public static function without_notes( $html ) {
+		$gap   = '(?:\s|&nbsp;|\x{00A0}|<[^>]+>)*';
+		$word  = '(?:Top|Middle|Heart|Base|Bottom)';
+		$label = $gap . $word . '(?:\s+notes?)?' . $gap . ':';
+		$bare  = $gap . $word . '\s+(?!notes?\b)[^.<\n]{1,70}'; // "Top Lavender, Juniper Water"
+		$html  = preg_replace( '#<(p|div)\b[^>]*>(?:' . $label . '.*?|' . $bare . ')</\1>#isu', '', (string) $html );
+		return preg_replace( '#^(?:' . $label . '.*|' . $bare . ')$#mu', '', $html );
+	}
+
+	/** Returns start from the customer's own order list. */
+	public function order_return_action( $actions, $order ) {
+		$page = get_page_by_path( 'returns' );
+		if ( $page && $order->has_status( array( 'processing', 'completed' ) ) ) {
+			$actions['afz_return'] = array(
+				'url'  => add_query_arg( 'order', $order->get_id(), get_permalink( $page ) ) . '#start-return',
+				'name' => __( 'Return items', 'afazalif' ),
+			);
+		}
+		return $actions;
 	}
 
 	/* ---------- search ---------- */

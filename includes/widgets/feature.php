@@ -44,7 +44,7 @@ class AFZ_Widget_Feature extends AFZ_Widget_Base {
 
 		$this->start_controls_section( 'media_s', array( 'label' => __( 'Video & image', 'afazalif' ) ) );
 		$this->media( 'video', __( 'Video (desktop, 1080p MP4)', 'afazalif' ), 'repel-1080.mp4', 'video' );
-		$this->media( 'video_m', __( 'Video (phones, 720p MP4)', 'afazalif' ), 'repel-720.mp4', 'video' );
+		$this->media( 'video_m', __( 'Video (phones, portrait MP4)', 'afazalif' ), 'repel-720.mp4', 'video' );
 		$this->media( 'poster', __( 'Poster image', 'afazalif' ), 'repel-poster.webp' );
 		$this->media( 'pack', __( 'Floating product image', 'afazalif' ), 'repellent.webp' );
 		$this->section_id( 'repel' );
@@ -54,9 +54,9 @@ class AFZ_Widget_Feature extends AFZ_Widget_Base {
 	protected function render() {
 		$s       = $this->get_settings_for_display();
 		$product = ! empty( $s['product'] ) ? wc_get_product( (int) $s['product'] ) : null;
-		$video   = afz_media_url( $s['video'] );
-		$mobile  = afz_media_url( $s['video_m'] );
-		$poster  = afz_media_url( $s['poster'], 'large' );
+		$video   = afz_video_url( $s['video'] );
+		$mobile  = afz_video_url( $s['video_m'] );
+		$poster  = afz_video_url( afz_media_url( $s['poster'], 'full' ) );
 		$this->open();
 		?>
 		<section class="repel"<?php echo $this->id_attr( $s ); // phpcs:ignore ?>>
@@ -64,7 +64,7 @@ class AFZ_Widget_Feature extends AFZ_Widget_Base {
 				<div class="repel__media" data-cursor="Play">
 					<div class="repel__arch">
 						<?php if ( $video ) : ?>
-							<video class="repel__video" muted loop playsinline preload="none"<?php echo $poster ? ' poster="' . esc_url( $poster ) . '"' : ''; ?> data-lazy-video>
+							<video class="repel__video" muted loop playsinline disablepictureinpicture disableremoteplayback preload="none"<?php echo $poster ? ' poster="' . esc_url( $poster ) . '"' : ''; ?> data-lazy-video>
 								<?php if ( $mobile ) : ?><source data-src="<?php echo esc_url( $mobile ); ?>" type="video/mp4" media="(max-width: 900px)"><?php endif; ?>
 								<source data-src="<?php echo esc_url( $video ); ?>" type="video/mp4">
 							</video>

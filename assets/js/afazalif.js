@@ -18,6 +18,15 @@
 
   if (reduced) document.documentElement.classList.add('rm');
 
+  /* iPhones in Low Power Mode refuse to autoplay and draw a play button over the film. The poster
+     stays in place (the button is hidden in CSS) and the film starts on the first touch instead. */
+  const startFilm = v => v.play && v.play().catch(() => {
+    const retry = () => { v.play().catch(() => {}); };
+    document.addEventListener('touchend', retry, { once: true, passive: true });
+    document.addEventListener('click', retry, { once: true });
+  });
+  $$('video[autoplay]').forEach(startFilm);
+
   /* ---------------------------------------------------------
      Text splitting
      --------------------------------------------------------- */
@@ -567,6 +576,18 @@
         <span><a class="cart-item__name" href="${esc(it.url)}">${esc(it.name)}</a>
           <span class="qty"><button type="button" data-qty="-1" data-key="${esc(it.key)}" aria-label="Decrease quantity">−</button><output>${it.qty}</output><button type="button" data-qty="1" data-key="${esc(it.key)}" aria-label="Increase quantity"${it.max > 0 && it.qty >= it.max ? ' disabled' : ''}>+</button></span></span>
         <span class="cart-item__price">${money(it.total)}</span></li>`).join('');
+    const up = $('.cart__upsell', cartEl), ups = state.upsells || [];
+    const upKey = ups.map(u => u.id).join();
+    // leave the row (and its scroll position) alone unless the suggestions changed
+    if (up && up.dataset.key !== upKey) {
+      up.dataset.key = upKey; up.hidden = !ups.length;
+      up.innerHTML = !ups.length ? '' : `<div class="cart__upsell-head"><p class="display">${esc(C.i18n.also)}</p><span><button type="button" class="round-btn" data-up="-1" aria-label="Previous">←</button><button type="button" class="round-btn" data-up="1" aria-label="Next">→</button></span></div>
+        <div class="cart__upsell-track">${ups.map(u => `<article class="cart-up">
+          <a class="cart-up__img" href="${esc(u.url)}"><img src="${esc(u.img)}" alt="" loading="lazy"></a>
+          <div><a class="cart-up__name" href="${esc(u.url)}">${esc(u.name)}</a><span class="cart-up__price">${money(u.price)}</span>
+          ${u.add ? `<button type="button" class="cart-up__btn" data-add="${u.id}">${esc(C.i18n.add)}</button>` : `<a class="cart-up__btn" href="${esc(u.url)}">${esc(C.i18n.choose)}</a>`}</div>
+        </article>`).join('')}</div>`;
+    }
     justAdded = null;
     list.dataset.state = JSON.stringify(state.items.map(i => [i.key, i.qty]));
     cartEl.classList.toggle('has-items', state.count > 0);
@@ -593,6 +614,12 @@
     post('afz_cart', { op: 'get' }).then(r => r && r.success && renderCart(r.data)).catch(() => {});
     $$('[data-open-cart]').forEach(b => b.addEventListener('click', () => openCart(true)));
     cartEl.addEventListener('click', e => { if (e.target.closest('[data-close-cart]')) openCart(false); });
+    cartEl.addEventListener('click', e => {
+      const b = e.target.closest('[data-up]');
+      if (!b) return;
+      const track = $('.cart__upsell-track', cartEl), card = $('.cart-up', cartEl);
+      track.scrollBy({ left: b.dataset.up * ((card ? card.offsetWidth : 240) + 12), behavior: reduced ? 'auto' : 'smooth' });
+    });
     list.addEventListener('click', e => {
       const b = e.target.closest('[data-qty]');
       if (!b || b.disabled) return;
@@ -627,7 +654,7 @@
       setTimeout(() => openCart(true), 250);
     };
     justAdded = id;
-    if (reduced || !basket || !from.getBoundingClientRect) { request.then(finish).catch(() => finish(null)); return; }
+    if (reduced || !basket || !from.getBoundingClientRect || btn.closest('.cart-drawer')) { request.then(finish).catch(() => finish(null)); return; }
     const a = from.getBoundingClientRect(), b = basket.getBoundingClientRect();
     const fly = document.createElement('img');
     fly.src = from.currentSrc || from.src || ''; fly.className = 'fly'; fly.alt = '';
@@ -847,10 +874,10 @@
     form.addEventListener('submit', e => {
       e.preventDefault();
       const bad = $$('[required]', form).find(f => !f.value.trim() || !f.checkValidity());
-      if (bad) { bad.focus(); note.className = 'form-note is-error'; note.textContent = 'Please fill in your name, a valid email and a message.'; return; }
+      if (bad) { bad.focus(); note.className = 'form-note is-error'; note.textContent = form.dataset.invalid || 'Please fill in your name, a valid email and a message.'; return; }
       const data = {}; new FormData(form).forEach((v, k) => { data[k] = v; });
       form.classList.add('is-busy'); note.className = 'form-note'; note.textContent = '';
-      post('afz_contact', data).then(r => {
+      post(form.dataset.endpoint || 'afz_contact', data).then(r => {
         form.classList.remove('is-busy');
         if (r && r.success) { form.reset(); note.className = 'form-note is-ok'; note.textContent = r.data.message; }
         else { note.className = 'form-note is-error'; note.textContent = (r && r.data && r.data.message) || C.i18n.error; }

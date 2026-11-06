@@ -41,10 +41,10 @@ AFZ_Forms::install();
 /* ---------- media ---------- */
 $files = array(
 	'video/hero-1080.mp4'           => 'AWRELIEF hero film (1080p)',
-	'video/hero-720.mp4'            => 'AWRELIEF hero film (720p, phones)',
+	'video/hero-720.mp4'            => 'AWRELIEF hero film (phones)',
 	'video/hero-poster.webp'        => 'Candle and reed diffuser in a living room',
 	'video/repel-1080.mp4'          => 'Insect repellent film (1080p)',
-	'video/repel-720.mp4'           => 'Insect repellent film (720p, phones)',
+	'video/repel-720.mp4'           => 'Insect repellent film (phones)',
 	'video/repel-poster.webp'       => 'Insect repellent being sprayed',
 	'img/founder-synita.webp'       => 'Synita, founder of AWRELIEF, holding an AWRELIEF gift bag',
 	'img/life-sofa.webp'            => 'AWRELIEF candle and reed diffuser in a calm living room',
@@ -92,14 +92,14 @@ $scents = array(
 	array( 'seychelles', 'Seychelles', 'Tropical', '#7cc4b8', '#f1dca6', 'Fresh Coconut, Bergamot', 'Amber, Jasmine', 'Butter, Vanilla' ),
 	array( 'lime-basil-mandarin', 'Lime, Basil & Mandarin', 'Fresh citrus', '#a7c35a', '#f2c46b', 'Mandarin', 'Basil', 'Amberwood' ),
 	array( 'rose-trilogy', 'Rose Trilogy', 'Spiced rose', '#c4455a', '#f0b8a8', 'Sichuan Pepper, Turmeric', 'May, Turkish & Bulgarian Rose', 'Patchouli, Tonka Bean' ),
-	array( 'serene', 'Serene', 'Aromatic calm', '#8f86c4', '#c9d6b8', 'Lavender, Juniper Water', 'Cardamom, Sage, Davana', 'Musk, White Woods' ),
+	array( 'serene', 'Serene', 'Aromatic calm', '#8f86c4', '#c9d6b8', 'Lavender, Juniper Water', 'Cardamom, Sage, Davana', 'Musk, White Woods, Beach Wood' ),
 	array( 'vines', 'Vines', 'Green & fruity', '#6e9a4a', '#e9a36b', 'Tagette, Tomato Leaf, Cassis', 'Rose, Orange Blossom', 'Musk, Amber, Orchid' ),
 	array( 'cashmere', 'Cashmere', 'Soft musk', '#d9c3a5', '#c8b4d8', 'Orange Flower, Coconut', 'White Mimosa, Rose', 'Cashmere, Sand Musk' ),
-	array( 'chill', 'Chill', 'Smoky woods', '#8a5a3c', '#e0b98d', 'Pink Pepper, Clove', 'Chestnut, Guaiac Wood', 'Vanilla, Peru Balsam' ),
+	array( 'chill', 'Chill', 'Smoky woods', '#8a5a3c', '#e0b98d', 'Pink Pepper, Orange Flower Petals, Clove Oil', 'Chestnut Accord, Guaiac Wood, Juniper', 'Vanilla Accord, Peru Balsam, Cashmeran' ),
 	array( 'apple', 'Apple', 'Festive fruity', '#c9453c', '#9cc25a', 'Apple, Green Leaf', 'Brown Sugar, Cranberry', 'Musk, Sweet Raspberry' ),
 	array( 'tropical-samba', 'Tropical Samba', 'Fruity floral', '#f2b36b', '#f3d9e4', 'Apple, Lemon, Almond', 'Coconut, White Florals', 'Woods, Tonka, Moss' ),
-	array( 'spice', 'Spice', 'Autumn spice', '#d9782d', '#f0c58d', 'Pumpkin', 'Cinnamon, Clove', 'Musk' ),
-	array( 'snuggles', 'Snuggles', 'Spiced gourmand', '#7a4a2e', '#b9d3b0', 'Cocoa, Ginger, Cinnamon', 'Mint', 'Vanilla, Biscuit' ),
+	array( 'spice', 'Spice', 'Autumn spice', '#d9782d', '#f0c58d', 'Pumpkin', 'Pumpkin, Cinnamon, Clove', 'Musk' ),
+	array( 'snuggles', 'Snuggles', 'Spiced gourmand', '#7a4a2e', '#b9d3b0', 'Cocoa, Ginger, Clove, Cinnamon, Nutmeg', 'Mint', 'Cocoa, Vanilla, Biscuit' ),
 );
 if ( ! taxonomy_exists( AFZ_Scents::TAX ) ) {
 	AFZ_Scents::instance()->register(); // the plugin was activated during this run, after init
@@ -132,7 +132,7 @@ foreach ( $scents as $i => $s ) {
 			$count++;
 		}
 	}
-	delete_transient( 'afz_formats_' . $term->term_id );
+	delete_transient( 'afz_formats2_' . $term->term_id );
 	$log( "scent $name: $count products" );
 }
 

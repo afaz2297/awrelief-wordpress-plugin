@@ -34,7 +34,14 @@ $afz_404 = is_404();
 					<?php
 					while ( have_posts() ) {
 						the_post();
+						if ( is_singular( 'post' ) && has_post_thumbnail() ) {
+							echo afz_img( (int) get_post_thumbnail_id(), 'prose__cover', '', 'large', array( 'loading' => 'eager' ) ); // phpcs:ignore
+						}
 						the_content();
+					}
+					$afz_journal = is_singular( 'post' ) ? get_page_by_path( 'journal' ) : null;
+					if ( $afz_journal ) {
+						echo '<p><a class="link-arrow" href="' . esc_url( get_permalink( $afz_journal ) ) . '">' . esc_html__( 'Back to the Journal', 'afazalif' ) . ' <span>→</span></a></p>';
 					}
 					?>
 				</div>

@@ -28,7 +28,7 @@ class AFZ_Widget_Hero extends AFZ_Widget_Base {
 
 		$this->start_controls_section( 'media_s', array( 'label' => __( 'Video', 'afazalif' ) ) );
 		$this->media( 'video', __( 'Video (desktop, 1080p MP4)', 'afazalif' ), 'hero-1080.mp4', 'video' );
-		$this->media( 'video_m', __( 'Video (phones, 720p MP4)', 'afazalif' ), 'hero-720.mp4', 'video', array( 'description' => __( 'Optional smaller file for phones.', 'afazalif' ) ) );
+		$this->media( 'video_m', __( 'Video (phones, portrait MP4)', 'afazalif' ), 'hero-720.mp4', 'video', array( 'description' => __( 'Optional smaller file for phones.', 'afazalif' ) ) );
 		$this->media( 'poster', __( 'Poster image', 'afazalif' ), 'hero-poster.webp', 'image', array( 'description' => __( 'Shown while the video loads.', 'afazalif' ) ) );
 		$this->add_control( 'smoke', array( 'label' => __( 'Candle smoke over the video', 'afazalif' ), 'type' => Controls_Manager::SWITCHER, 'default' => 'yes' ) );
 		$this->end_controls_section();
@@ -42,16 +42,16 @@ class AFZ_Widget_Hero extends AFZ_Widget_Base {
 
 	protected function render() {
 		$s      = $this->get_settings_for_display();
-		$poster = afz_media_url( $s['poster'] ?? '', 'full' );
-		$video  = afz_media_url( $s['video'] ?? '' );
-		$mobile = afz_media_url( $s['video_m'] ?? '' );
+		$poster = afz_video_url( afz_media_url( $s['poster'] ?? '', 'full' ) );
+		$video  = afz_video_url( $s['video'] ?? '' );
+		$mobile = afz_video_url( $s['video_m'] ?? '' );
 		$this->open();
 		?>
 		<section class="hero"<?php echo $this->id_attr( $s ); // phpcs:ignore ?>>
 			<div class="hero__media" data-cursor="Scroll">
 				<?php if ( $video ) : ?>
-					<video class="hero__video" autoplay muted loop playsinline preload="auto"<?php echo $poster ? ' poster="' . esc_url( $poster ) . '"' : ''; ?>>
-						<?php if ( $mobile ) : ?><source src="<?php echo esc_url( $mobile ); ?>" type="video/mp4" media="(max-width: 900px)"><?php endif; ?>
+					<video class="hero__video" autoplay muted loop playsinline disablepictureinpicture disableremoteplayback preload="auto"<?php echo $poster ? ' poster="' . esc_url( $poster ) . '"' : ''; ?>>
+						<?php if ( $mobile ) : ?><source src="<?php echo esc_url( $mobile ); ?>" type="video/mp4" media="(max-width: 900px) and (orientation: portrait)"><?php endif; ?>
 						<source src="<?php echo esc_url( $video ); ?>" type="video/mp4">
 					</video>
 				<?php elseif ( $poster ) : ?>

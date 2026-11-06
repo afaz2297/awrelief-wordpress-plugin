@@ -25,7 +25,7 @@ class AFZ_Widget_Contact extends AFZ_Widget_Base {
 		$this->text( 'hours', __( 'Reply time line', 'afazalif' ), 'Replies Monday to Friday, within one working day' );
 		$this->text( 'subjects', __( 'Subject choices', 'afazalif' ), "A question about an order\nProducts & scents\nGifts & gift cards\nWholesale & collaborations\nSomething else", 'textarea', array( 'rows' => 5, 'description' => __( 'One per line.', 'afazalif' ) ) );
 		$this->text( 'button', __( 'Button text', 'afazalif' ), 'Send message' );
-		$this->add_control( 'note', array( 'type' => Controls_Manager::RAW_HTML, 'raw' => '<p style="line-height:1.5">' . esc_html__( 'Email, WhatsApp and company number come from AWRELIEF → Site settings. Messages are saved in AWRELIEF → Messages and emailed to the store address.', 'afazalif' ) . '</p>' ) );
+		$this->add_control( 'note', array( 'type' => Controls_Manager::RAW_HTML, 'raw' => '<p style="line-height:1.5">' . esc_html__( 'Email and WhatsApp come from AWRELIEF → Site settings. Messages are saved in AWRELIEF → Messages and emailed to the store address.', 'afazalif' ) . '</p>' ) );
 		$this->end_controls_section();
 	}
 
@@ -53,9 +53,6 @@ class AFZ_Widget_Contact extends AFZ_Widget_Base {
 							<a href="<?php echo esc_url( $sc['url'] ); ?>" class="social" aria-label="<?php echo esc_attr( $sc['label'] ); ?>" target="_blank" rel="noopener"><?php echo afz_icon( $key ); // phpcs:ignore ?></a>
 						<?php endforeach; ?>
 					</div>
-					<?php if ( afz_opt( 'company_no' ) ) : ?>
-						<p class="mono contact__company"><?php echo esc_html( sprintf( __( '%1$s · Registered in England & Wales · Company No. %2$s', 'afazalif' ), afz_opt( 'company_name' ), afz_opt( 'company_no' ) ) ); ?></p>
-					<?php endif; ?>
 				</div>
 				<form class="contact__form" data-afz-contact novalidate>
 					<div class="contact__row">

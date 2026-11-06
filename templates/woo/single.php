@@ -58,7 +58,7 @@ while ( have_posts() ) :
 							<?php endif; ?>
 						</div>
 						<?php if ( $product->get_short_description() ) : ?>
-							<div class="pdp__lede"><?php echo wp_kses_post( wpautop( $product->get_short_description() ) ); ?></div>
+							<div class="pdp__lede"><?php echo wp_kses_post( wpautop( AFZ_Woo::without_notes( $product->get_short_description() ) ) ); ?></div>
 						<?php endif; ?>
 
 						<?php if ( $afz_scent && ( $afz_scent['top'] || $afz_scent['heart'] || $afz_scent['base'] ) ) : ?>
@@ -72,8 +72,15 @@ while ( have_posts() ) :
 						<?php $afz_sib = AFZ_Woo::siblings( $product ); ?>
 						<?php if ( $afz_sib ) : ?>
 							<div class="pdp__formats">
-								<span class="mono"><?php echo esc_html( sprintf( __( '%s also comes as', 'afazalif' ), $afz_scent['name'] ) ); ?></span>
-								<div><?php foreach ( $afz_sib as $f ) : ?><a class="chip" href="<?php echo esc_url( $f['url'] ); ?>"><?php echo esc_html( $f['label'] ); ?><b><?php echo esc_html( afz_money( $f['price'] ) ); ?></b></a><?php endforeach; ?></div>
+								<p class="pdp__formats-title"><?php esc_html_e( 'Also comes in', 'afazalif' ); ?></p>
+								<div class="pdp__formats-list">
+									<?php foreach ( $afz_sib as $f ) : ?>
+										<a class="pdp__format" href="<?php echo esc_url( $f['url'] ); ?>">
+											<?php if ( ! empty( $f['img'] ) ) : ?><?php echo afz_img( (int) $f['img'], 'pdp__format-img', '', 'woocommerce_thumbnail' ); // phpcs:ignore ?><?php endif; ?>
+											<span class="pdp__format-name"><?php echo esc_html( 'Diffuser' === $f['label'] ? __( 'Reed Diffuser', 'afazalif' ) : $f['label'] ); ?><b><?php echo esc_html( afz_money( $f['price'] ) ); ?></b></span>
+										</a>
+									<?php endforeach; ?>
+								</div>
 							</div>
 						<?php endif; ?>
 
@@ -91,10 +98,11 @@ while ( have_posts() ) :
 
 						<div class="pdp__acc">
 							<?php if ( get_the_content() ) : ?>
-								<details open><summary><?php esc_html_e( 'Details & care', 'afazalif' ); ?></summary><div class="pdp__acc-body"><?php the_content(); ?></div></details>
+								<details open><summary><?php esc_html_e( 'Details & care', 'afazalif' ); ?></summary><div class="pdp__acc-body"><?php echo apply_filters( 'the_content', AFZ_Woo::without_notes( get_the_content() ) ); // phpcs:ignore ?></div></details>
 							<?php endif; ?>
 							<details><summary><?php esc_html_e( 'Delivery & returns', 'afazalif' ); ?></summary><div class="pdp__acc-body">
-								<p><?php esc_html_e( 'UK Standard Delivery £3.99 (up to 4 working days), free over £40. UK Next Day Delivery £6.99 when you order before 4pm.', 'afazalif' ); ?></p>
+								<p><?php esc_html_e( 'UK Standard Delivery £3.99 (up to 4 working days), free over £40.', 'afazalif' ); ?></p>
+								<p><?php esc_html_e( 'UK Next Day Delivery £6.99 when you order before 4pm.', 'afazalif' ); ?></p>
 								<p><?php esc_html_e( 'Changed your mind? You can return unused items within 14 days.', 'afazalif' ); ?>
 								<?php if ( $afz_delivery ) : ?> <a href="<?php echo esc_url( get_permalink( $afz_delivery ) ); ?>"><?php esc_html_e( 'Delivery', 'afazalif' ); ?></a><?php endif; ?>
 								<?php if ( $afz_returns ) : ?> · <a href="<?php echo esc_url( get_permalink( $afz_returns ) ); ?>"><?php esc_html_e( 'Returns', 'afazalif' ); ?></a><?php endif; ?></p>

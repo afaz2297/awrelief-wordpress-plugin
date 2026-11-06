@@ -137,7 +137,7 @@
 .afz .contact__form { padding: clamp(28px, 3vw, 46px); border-radius: 28px; background: var(--paper); border: 1px solid var(--line-dark); box-shadow: 0 40px 70px -50px rgba(60,40,10,.5); }
 .afz .contact__row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .afz .contact__form .field label { color: var(--muted-dark); }
-.afz .contact__form input, .afz .contact__form textarea, .afz .contact__form select { width: 100%; padding: 15px 18px; border-radius: 14px; border: 1px solid var(--line-dark); background: #fff; color: var(--text-dark); font: 300 16px var(--f-body); outline: 0; transition: border-color .3s, box-shadow .3s; }
+.afz .contact__form input, .afz .contact__form textarea, .afz .contact__form select { width: 100%; padding: 15px 18px; border-radius: 14px; border: 1px solid var(--line-dark); background: #fff; color: var(--text-dark); font: 400 16px var(--f-body); outline: 0; transition: border-color .3s, box-shadow .3s; }
 .afz .contact__form select { appearance: none; -webkit-appearance: none; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%238e6420' stroke-width='1.4'/%3E%3C/svg%3E") no-repeat right 18px center; }
 .afz .contact__form input:focus, .afz .contact__form textarea:focus, .afz .contact__form select:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,160,74,.18); }
 .afz .contact__form .btn { margin-top: 6px; }

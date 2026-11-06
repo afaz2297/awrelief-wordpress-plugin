@@ -195,11 +195,11 @@ $page( 'delivery', 'Delivery', array(
 
 /* ---------- Returns ---------- */
 $returns = $clean( $old_editor( get_page_by_path( 'returns' )->ID ) );
-// the returns portal plugin was retired: returns now start with a message to the store
-$returns = preg_replace( '#<p>All returns must be completed via the return portal.*?</p>#s', '<p>To start a return, <a href="/contact-us/">contact us</a> with your order number and clearly indicate which items you are returning. If this is not filled out correctly, your return may experience issues in processing.</p>', $returns );
+// the old returns portal plugin is replaced by the plugin's own request form below
+$returns = preg_replace( '#<p>All returns must be completed via the return portal.*?</p>#s', '<p>To start a return, complete the <a href="#start-return">return request form</a> below with your order number and clearly indicate which items you are returning. If this is not filled out correctly, your return may experience issues in processing.</p>', $returns );
 $page( 'returns', 'Returns', array(
 	$box( array( $hero( 'Returns', 'Changed your {mind?}', 'You have 14 days from delivery to return unused items in their original condition.' ) ) ),
-	$box( array( $el( 'afz-rich', array( 'eyebrow' => 'Our returns policy', 'body' => $returns ) ) ), 'afz-sheet light' ),
+	$box( array( $el( 'afz-rich', array( 'eyebrow' => 'Our returns policy', 'body' => $returns ) ), $el( 'afz-returns' ) ), 'afz-sheet light' ),
 ) );
 
 /* ---------- Terms ---------- */
@@ -242,7 +242,7 @@ $page( 'track-order', 'Track my order', array(
 
 /* ---------- Care guide (new) ---------- */
 $page( 'care-guide', 'Care Guide', array(
-	$box( array( $hero( 'Care guide', 'Make every scent {last longer}', 'A few simple habits keep candles burning evenly and diffusers fragrant for weeks.', array( 'image' => $m( 'candle.webp' ), 'image_style' => 'cutout', 'hue' => '#b9a6d9' ) ) ) ),
+	$box( array( $hero( 'Care guide', 'Make every scent {last longer}', 'A few simple habits keep candles burning evenly, diffusers fragrant for weeks and your insect repellent working as it should.', array( 'image' => $m( 'candle.webp' ), 'image_style' => 'cutout', 'hue' => '#b9a6d9' ) ) ) ),
 	$box( array(
 		$el( 'afz-cards', array(
 			'eyebrow' => 'Candles',
@@ -263,21 +263,75 @@ $page( 'care-guide', 'Care Guide', array(
 			'items'   => array(
 				array( '_id' => 'r1', 'label' => '01', 'title' => 'Turn the reeds', 'text' => 'Flip the reeds every week or so to refresh the scent. Fewer reeds give a softer fragrance and make the oil last longer.' ),
 				array( '_id' => 'r2', 'label' => '02', 'title' => 'Find the right spot', 'text' => 'Keep your diffuser away from direct sunlight, radiators and draughts, which make the oil evaporate faster.' ),
-				array( '_id' => 'r3', 'label' => '03', 'title' => 'Refill, don’t replace', 'text' => 'When it runs low, top up with a matching refill. The spout pours cleanly, without spills or wastage.' ),
+				array( '_id' => 'r3', 'label' => '03', 'title' => 'Refill, don’t replace', 'text' => 'When it runs low, top up with your chosen refill. The spout pours cleanly, without spills or wastage.' ),
 			),
 		) ),
 		$el( 'afz-rich', array(
 			'eyebrow' => 'Keep in mind',
 			'body'    => '<ul><li>Never leave candles burning unattended or near draughts, open windows, air vents or fans.</li><li>When it’s time to extinguish your candle, use a candle snuffer, or blow it out gently and carefully.</li><li>Do not eat or drink any of the products. Keep all products away from pets and children at all times.</li><li>Our products are vegan and cruelty-free, and contain no silicone or parabens.</li></ul>',
 		) ),
+		$el( 'afz-cards', array(
+			'eyebrow' => 'Insect repellent',
+			'title'   => 'Apply it {the right way}',
+			'intro'   => 'Shake well before use.',
+			'columns' => '3',
+			'items'   => array(
+				array( '_id' => 'i1', 'label' => '01', 'title' => 'Spray evenly', 'text' => 'Hold the bottle approximately 10 cm away from the skin and spray using a slow, sweeping motion to ensure even coverage. It can also be sprayed into the surrounding air.' ),
+				array( '_id' => 'i2', 'label' => '02', 'title' => 'On the face', 'text' => 'Spray into the palm of your hand first, then carefully apply it to the face, avoiding the eyes and lips.' ),
+				array( '_id' => 'i3', 'label' => '03', 'title' => 'Reapply', 'text' => 'Apply at least three times daily as needed. High temperatures, humidity and other environmental conditions may reduce the duration of protection.' ),
+			),
+		) ),
+		$el( 'afz-rich', array(
+			'eyebrow' => 'Warnings and storage',
+			'body'    => '<ul><li>In the unlikely event of a skin reaction or irritation, discontinue use immediately and seek medical advice.</li><li>Do not spray onto open wounds, near naked flames or onto any other source of ignition.</li><li>When exposed to direct sunlight, take appropriate precautions to protect your skin.</li><li><strong>If in eyes:</strong> rinse cautiously with water for several minutes. Remove contact lenses, if present and easy to do, then continue rinsing. Seek medical advice if eye irritation persists.</li><li>Store in a cool, dry place, away from direct sunlight and sources of heat.</li></ul>',
+		) ),
 	), 'afz-sheet light' ),
 ) );
 
 /* ---------- Journal (new, until the first stories are published) ---------- */
 $page( 'journal', 'Journal', array(
-	$box( array( $hero( 'The journal', 'Notes on {slow living}', 'Scent stories, care rituals and calmer homes. Our first stories are on their way.' ) ) ),
+	$box( array( $hero( 'The journal', 'Notes on {slow living}', 'Scent stories, care rituals and calmer homes.' ) ) ),
+	$box( array( $el( 'afz-journal' ) ), 'afz-sheet light' ),
 	$box( array( $el( 'afz-newsletter', array( 'eyebrow' => 'Be the first to read', 'title' => "Stories, straight\nto {your inbox}" ) ) ) ),
 ) );
+
+/* ---------- Insect repellent: the client's Details & care wording ---------- */
+$repellent = get_page_by_path( 'insect-repellent', OBJECT, 'product' );
+if ( $repellent ) {
+	$list = function ( $items ) {
+		return '<ul><li>' . implode( '</li><li>', $items ) . '</li></ul>';
+	};
+	$head = function ( $text ) {
+		return '<p class="care-h"><strong>' . $text . '</strong></p>';
+	};
+	wp_update_post( array(
+		'ID'           => $repellent->ID,
+		'post_content' => wp_slash(
+			$head( 'Benefits' ) . $list( array(
+				'AWRELIEF insect repellent a light, citrus aroma, and non-greasy texture. It is the best multi use product to take on holiday for the whole family to use, (a patch test is recommended for first-time use on sensitive skin).',
+				'Due to the natural aromatherapy, it helps with relaxation, aches and pains, clearing up of the skin, after bites and many more.',
+			) )
+			. $head( 'Ingredients' ) . '<p>Lavandula angustifolia (lavender oil), Mentha piperita (peppermint oil), Cymbopogon nardus (citronella oil), Eucalyptus citriodora (lemon eucalyptus oil), (*Natural components of the essential oils). All blended in a unique process.</p>'
+			. $head( 'How to Use' ) . $list( array(
+				'Shake well before use.',
+				'Apply to both affected and unaffected areas of the skin, avoiding the eyes and lips.',
+				'The product can also be sprayed into the surrounding air.',
+				'Hold the bottle approximately 10 cm away from the skin and spray using a slow, sweeping motion to ensure even coverage.',
+				'When applying to the face, spray the product into the palm of your hand first, then carefully apply it to the face, avoiding the eyes and lips.',
+				'Apply at least three times daily to the affected or unaffected areas as needed.',
+				'Reapply as necessary. Please note that high temperatures, humidity and other environmental conditions may reduce the duration of protection provided by insect repellents.',
+			) )
+			. $head( 'Warnings and Precautions' ) . $list( array(
+				'In the unlikely event of a skin reaction or irritation, discontinue use immediately and seek medical advice.',
+				'Do not spray onto open wounds, near naked flames or onto any other source of ignition.',
+				'When exposed to direct sunlight, take appropriate precautions to protect your skin.',
+			) )
+			. '<p><strong>IF IN EYES:</strong> Rinse cautiously with water for several minutes. Remove contact lenses, if present and easy to do, then continue rinsing. Seek medical advice if eye irritation persists.</p>'
+			. $head( 'Storage' ) . '<p>Store in a cool, dry place, away from direct sunlight and sources of heat.</p>'
+		),
+	) );
+	echo "insect repellent details updated\n";
+}
 
 // the old theme's demo "Store" page should not be public
 $store = get_page_by_path( 'store' );

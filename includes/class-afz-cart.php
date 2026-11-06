@@ -86,6 +86,49 @@ class AFZ_Cart {
 			$out['count']  += (int) $item['quantity'];
 		}
 		$out['subtotal'] = (float) WC()->cart->get_subtotal() + (float) WC()->cart->get_subtotal_tax();
+		$out['upsells']  = self::upsells();
+		return $out;
+	}
+
+	/**
+	 * "You might also like": the store's own upsells and cross-sells for what is in the basket,
+	 * then the same scent in other formats (a refill for a diffuser), then related products.
+	 */
+	private static function upsells( $limit = 6 ) {
+		$in = $first = $scents = $related = array();
+		foreach ( WC()->cart->get_cart() as $item ) {
+			$in[] = (int) $item['product_id'];
+		}
+		foreach ( array_unique( $in ) as $id ) {
+			$p = wc_get_product( $id );
+			if ( ! $p ) {
+				continue;
+			}
+			$first = array_merge( $first, $p->get_upsell_ids(), $p->get_cross_sell_ids() );
+			$sc    = AFZ_Scents::of_product( $id );
+			if ( $sc ) {
+				$scents = array_merge( $scents, wp_list_pluck( AFZ_Scents::formats( $sc['id'] ), 'id' ) );
+			}
+			$related = array_merge( $related, wc_get_related_products( $id, $limit ) );
+		}
+		$out = array();
+		foreach ( array_diff( array_unique( array_map( 'intval', array_merge( $first, $scents, $related ) ) ), $in ) as $id ) {
+			$p = wc_get_product( $id );
+			if ( ! $p || ! $p->is_visible() || ! $p->is_purchasable() || ! $p->is_in_stock() ) {
+				continue;
+			}
+			$out[] = array(
+				'id'    => $id,
+				'name'  => $p->get_name(),
+				'url'   => $p->get_permalink(),
+				'img'   => $p->get_image_id() ? wp_get_attachment_image_url( $p->get_image_id(), 'woocommerce_thumbnail' ) : wc_placeholder_img_src(),
+				'price' => (float) wc_get_price_to_display( $p ),
+				'add'   => $p->is_type( 'simple' ),
+			);
+			if ( count( $out ) >= $limit ) {
+				break;
+			}
+		}
 		return $out;
 	}
 }

@@ -25,7 +25,7 @@ $afz_free  = (float) afz_opt( 'free_ship', 40 );
 			<div class="cart__ship-scale mono"><span><?php echo esc_html( afz_money( 0 ) ); ?></span><span><?php echo esc_html( sprintf( __( 'Free delivery at %s', 'afazalif' ), afz_money( $afz_free ) ) ); ?></span></div>
 		</div>
 		<?php endif; ?>
-		<ul class="cart__items" data-lenis-prevent></ul>
+		<div class="cart__scroll" data-lenis-prevent><ul class="cart__items"></ul><div class="cart__upsell" hidden></div></div>
 		<p class="cart__empty"><?php esc_html_e( 'Your basket is empty.', 'afazalif' ); ?> <a href="<?php echo esc_url( $afz_state['shop'] ); ?>" data-close-cart><?php esc_html_e( 'Explore the scents →', 'afazalif' ); ?></a></p>
 		<div class="cart__foot">
 			<div class="cart__total"><span class="mono"><?php esc_html_e( 'Subtotal', 'afazalif' ); ?></span><span class="display cart__sum"><?php echo esc_html( afz_money( $afz_state['subtotal'] ) ); ?></span></div>

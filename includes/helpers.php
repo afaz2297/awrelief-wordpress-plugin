@@ -99,6 +99,12 @@ function afz_media_url( $media, $size = 'full' ) {
 	return (string) $media;
 }
 
+/** Film or poster URL with a version, so CDNs pick up a re-encoded file under the same name. */
+function afz_video_url( $media ) {
+	$url = afz_media_url( $media );
+	return $url ? add_query_arg( 'v', '20261107', $url ) : '';
+}
+
 /** <img> for an Elementor MEDIA value with srcset, sizes and lazy loading handled by WordPress. */
 function afz_img( $media, $class = '', $alt = null, $size = 'large', $attrs = array() ) {
 	$id   = is_array( $media ) ? (int) ( $media['id'] ?? 0 ) : (int) $media;

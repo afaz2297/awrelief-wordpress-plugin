@@ -1,6 +1,6 @@
 <?php
 /**
- * Front-end assets and the site-wide UI: preloader, cursor, grain, basket drawer,
+ * Front-end assets and the site-wide UI: preloader, cursor, basket drawer,
  * search, welcome popup and cookie banner.
  */
 
@@ -39,7 +39,7 @@ class AFZ_Frontend {
 	}
 
 	public function assets() {
-		wp_enqueue_style( 'afz-fonts', 'https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..700&family=DM+Mono:wght@300;400&family=Hanken+Grotesk:wght@300;400;500;600&display=swap', array(), null );
+		wp_enqueue_style( 'afz-fonts', 'https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..700&family=DM+Mono:wght@300;400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Hanken+Grotesk:wght@300;400;500;600&display=swap', array(), null );
 		wp_enqueue_style( 'afazalif', AFZ_URL . 'assets/css/afazalif.css', array(), self::asset_ver( 'assets/css/afazalif.css' ) );
 
 		wp_register_script( 'afz-gsap', AFZ_URL . 'assets/vendor/gsap.min.js', array(), '3.12.5', true );
@@ -86,6 +86,9 @@ class AFZ_Frontend {
 				'scents'   => __( 'Scents', 'afazalif' ),
 				'none'     => __( 'Nothing matches “%s” yet. Try a scent name like Heaven or Chill.', 'afazalif' ),
 				'all'      => __( 'See all %d results', 'afazalif' ),
+				'also'     => __( 'You might also like', 'afazalif' ),
+				'add'      => __( 'Add to basket', 'afazalif' ),
+				'choose'   => __( 'Choose', 'afazalif' ),
 			),
 		);
 	}
@@ -119,9 +122,6 @@ class AFZ_Frontend {
 		if ( ! $editor ) {
 			if ( afz_on( 'cursor' ) ) {
 				echo '<div class="cursor is-hidden" aria-hidden="true"><span class="cursor__dot"></span><span class="cursor__ring"><em class="cursor__label"></em></span></div>';
-			}
-			if ( afz_on( 'grain' ) ) {
-				echo '<div class="grain" aria-hidden="true"></div>';
 			}
 			echo '<div class="scroll-progress" aria-hidden="true"><span></span></div>';
 		}

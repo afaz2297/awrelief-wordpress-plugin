@@ -11,6 +11,8 @@ class AFZ_Elementor {
 
 	/** file => class */
 	const WIDGETS = array(
+		'returns'       => 'AFZ_Widget_Returns',
+		'journal'       => 'AFZ_Widget_Journal',
 		'header'        => 'AFZ_Widget_Header',
 		'footer'        => 'AFZ_Widget_Footer',
 		'hero'          => 'AFZ_Widget_Hero',
