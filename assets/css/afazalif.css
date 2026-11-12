@@ -1085,6 +1085,26 @@ html body { font-weight: 400; }
 .afz .contact__form .field input, .afz .contact__form .field textarea { background: #fff; color: var(--text-dark); }
 @media (max-width: 760px) { .afz .cart__upsell { padding-left: 20px; } .afz .cart__upsell-head, .afz .cart__upsell-track { padding-right: 20px; } }
 
+/* film stills: cover the video until it really plays (iPhone Low Power Mode draws a play button on it) */
+.afz .film-poster { position: absolute; inset: 0; pointer-events: none; transition: opacity .6s var(--ease), visibility .6s; }
+.afz .film-poster img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.afz .film-poster.is-off { opacity: 0; visibility: hidden; }
+.afz .hero__poster { transform: scale(1.08); }
+.afz .repel__poster { transform: scale(1.15); }
+.afz .repel__poster img { object-position: 60% 50%; }
+.afz .story__figure .split__video, .afz .story__figure .split__poster { position: absolute; inset: -12% 0; width: 100%; height: 124%; object-fit: cover; }
+.afz .story__figure .film-poster img { position: static; opacity: 1; filter: none; }
+
+/* hero line under the headline: larger, brighter and lifted off the film */
+.afz .hero__lede { font-size: clamp(17px, 1.45vw, 21px); font-weight: 500; line-height: 1.5; color: var(--ivory); text-shadow: 0 1px 2px rgba(0,0,0,.45), 0 2px 18px rgba(0,0,0,.6); }
+
+/* light tiles behind product pictures in the basket and "Also comes in", so the black packs stand out */
+.afz .cart-item__img, .afz .cart-up__img { background: radial-gradient(circle at 50% 38%, #fffaf0 0%, #f1e6d2 62%, #e2d3b8 100%); }
+.afz .cart-up__img img { object-fit: contain; padding: 6px; }
+.afz .cart-up { background: #2a241b; }
+.afz .split--whole .story__figure img, .afz .split--whole .story__figure .split__video, .afz .split--whole .story__figure .split__poster { inset: 0; height: 100%; object-position: 50% 50%; }
+.afz .split--whole .story__figure::after { display: none; }
+
 
 /* ---------- assets/css/src/woo.css ---------- */
 /* =========================================================
@@ -1547,6 +1567,10 @@ html body { font-weight: 400; }
 .afz #order_review thead th.product-total { text-align: right; }
 /* on phones the section is very tall, so the page-wide aura stretched into a vertical band */
 @media (max-width: 900px) { .afz .pdp__aura { bottom: auto; height: 680px; } }
+
+/* light tiles behind the pictures in "Also comes in", so the black packs stand out */
+.afz .pdp__format { background: rgba(253,232,164,.08); }
+.afz .pdp__format-img { object-fit: contain; padding: 4px; background: radial-gradient(circle at 50% 38%, #fffaf0 0%, #f1e6d2 62%, #e2d3b8 100%); }
 
 
 /* ---------- assets/css/src/pages.css ---------- */

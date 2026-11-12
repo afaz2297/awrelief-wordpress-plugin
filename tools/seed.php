@@ -46,6 +46,10 @@ $files = array(
 	'video/repel-1080.mp4'          => 'Insect repellent film (1080p)',
 	'video/repel-720.mp4'           => 'Insect repellent film (phones)',
 	'video/repel-poster.webp'       => 'Insect repellent being sprayed',
+	'video/hero-poster-m.webp'      => 'A lit AWRELIEF candle',
+	'video/repel-poster-m.webp'     => 'Holding the AWRELIEF insect repellent',
+	'img/care-diffuser-refill.webp' => 'AWRELIEF reed diffuser and diffuser refill pouch',
+	'img/care-repellent.webp'       => 'AWRELIEF natural insect repellent 100ml',
 	'img/founder-synita.webp'       => 'Synita, founder of AWRELIEF, holding an AWRELIEF gift bag',
 	'img/life-sofa.webp'            => 'AWRELIEF candle and reed diffuser in a calm living room',
 	'img/life-reading.webp'         => 'Reading by candlelight with an AWRELIEF candle',
@@ -142,6 +146,13 @@ foreach ( array( 'Insect Repellent 100ml' => 'Plant-based · DEET-free', 'Gold N
 	if ( $ids && ! get_post_meta( $ids[0], '_afz_card_note', true ) ) {
 		update_post_meta( $ids[0], '_afz_card_note', $note );
 	}
+}
+
+// the repellent has no scent, so it gets its own green glow like the scented products beside it
+$ids = get_posts( array( 'post_type' => 'product', 'title' => 'Insect Repellent 100ml', 'numberposts' => 1, 'fields' => 'ids' ) );
+if ( $ids && ! get_post_meta( $ids[0], '_afz_aura', true ) ) {
+	update_post_meta( $ids[0], '_afz_aura', '#a8cc8c' );
+	update_post_meta( $ids[0], '_afz_plain', 'no' );
 }
 
 /* ---------- reed diffusers category (they had none) ---------- */

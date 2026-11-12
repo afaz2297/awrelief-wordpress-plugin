@@ -20,6 +20,7 @@ class AFZ_Widget_Split extends AFZ_Widget_Base {
 	protected function register_controls() {
 		$this->start_controls_section( 'content', array( 'label' => __( 'Content', 'afazalif' ) ) );
 		$this->media( 'image', __( 'Image', 'afazalif' ), 'life-reading.webp' );
+		$this->media( 'video', __( 'Video instead of the image (optional MP4)', 'afazalif' ), '', 'video', array( 'description' => __( 'Plays silently on a loop. The image above is shown until it starts. Portrait 4:5 videos fit best.', 'afazalif' ) ) );
 		$this->text( 'caption', __( 'Image caption (optional)', 'afazalif' ), '' );
 		$this->text( 'number', __( 'Chapter number (optional)', 'afazalif' ), '', 'text', array( 'description' => __( 'e.g. 01. Shown large and faint behind the text.', 'afazalif' ) ) );
 		$this->text( 'eyebrow', __( 'Small heading', 'afazalif' ), 'Where it all began' );
@@ -32,6 +33,12 @@ class AFZ_Widget_Split extends AFZ_Widget_Base {
 			'type'    => Controls_Manager::SELECT,
 			'default' => 'left',
 			'options' => array( 'left' => __( 'Left', 'afazalif' ), 'right' => __( 'Right', 'afazalif' ) ),
+		) );
+		$this->add_control( 'fit', array(
+			'label'   => __( 'Picture', 'afazalif' ),
+			'type'    => Controls_Manager::SELECT,
+			'default' => 'cover',
+			'options' => array( 'cover' => __( 'Fill and drift on scroll', 'afazalif' ), 'whole' => __( 'Show the whole picture', 'afazalif' ) ),
 		) );
 		$this->add_control( 'theme', array(
 			'label'   => __( 'Background', 'afazalif' ),
@@ -47,12 +54,19 @@ class AFZ_Widget_Split extends AFZ_Widget_Base {
 		$s     = $this->get_settings_for_display();
 		$light = 'light' === $s['theme'];
 		$id    = (int) ( $s['image']['id'] ?? 0 );
+		$video = afz_video_url( $s['video'] ?? '' );
 		$this->open( $light ? 'light' : '' );
 		?>
-		<section class="split split--<?php echo esc_attr( $s['side'] ); ?><?php echo $light ? ' light' : ''; ?>"<?php echo $this->id_attr( $s ); // phpcs:ignore ?>>
+		<section class="split split--<?php echo esc_attr( $s['side'] ); ?><?php echo 'whole' === ( $s['fit'] ?? '' ) ? ' split--whole' : ''; ?><?php echo $light ? ' light' : ''; ?>"<?php echo $this->id_attr( $s ); // phpcs:ignore ?>>
 			<div class="wrap split__grid">
 				<figure class="split__figure story__figure"<?php echo $id ? ' style="--lqip:url(' . esc_attr( afz_lqip( $id ) ) . ')"' : ''; ?>>
-					<?php echo afz_img( $s['image'], '', get_post_meta( $id, '_wp_attachment_image_alt', true ), 'large', array( 'data-parallax-img' => '' ) ); // phpcs:ignore ?>
+					<?php if ( $video ) : ?>
+						<?php $still = afz_media_url( $s['image'], 'large' ); ?>
+						<video class="split__video" muted loop playsinline disablepictureinpicture disableremoteplayback preload="none"<?php echo $still ? ' poster="' . esc_url( $still ) . '"' : ''; ?> data-lazy-video data-film data-parallax-img><source data-src="<?php echo esc_url( $video ); ?>" type="video/mp4"></video>
+						<?php echo $this->film_poster( 'split__poster', $still ); // phpcs:ignore ?>
+					<?php else : ?>
+						<?php echo afz_img( $s['image'], '', get_post_meta( $id, '_wp_attachment_image_alt', true ), 'large', array( 'data-parallax-img' => '' ) ); // phpcs:ignore ?>
+					<?php endif; ?>
 					<?php if ( $s['caption'] ) : ?><figcaption class="mono"><?php echo esc_html( $s['caption'] ); ?></figcaption><?php endif; ?>
 				</figure>
 				<div class="split__copy">

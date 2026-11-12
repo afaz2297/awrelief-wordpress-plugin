@@ -18,14 +18,32 @@
 
   if (reduced) document.documentElement.classList.add('rm');
 
-  /* iPhones in Low Power Mode refuse to autoplay and draw a play button over the film. The poster
-     stays in place (the button is hidden in CSS) and the film starts on the first touch instead. */
+  /* iPhones in Low Power Mode refuse to autoplay and draw a play button on the video itself. Each film
+     sits under a still (.film-poster) that only lifts once the film is really playing; a refused
+     film tries again on the first touch. */
   const startFilm = v => v.play && v.play().catch(() => {
     const retry = () => { v.play().catch(() => {}); };
     document.addEventListener('touchend', retry, { once: true, passive: true });
     document.addEventListener('click', retry, { once: true });
   });
+  $$('video[data-film]').forEach(v => {
+    const still = v.nextElementSibling && v.nextElementSibling.classList.contains('film-poster') ? v.nextElementSibling : null;
+    if (!still) return;
+    // lift only once frames really advance, and cover again whenever the film stops
+    v.addEventListener('timeupdate', () => { if (!v.paused && v.currentTime > 0.05) still.classList.add('is-off'); });
+    v.addEventListener('pause', () => still.classList.remove('is-off'));
+  });
   $$('video[autoplay]').forEach(startFilm);
+
+  /* Films further down load and play only while on screen. */
+  $$('video[data-lazy-video]').forEach(v => {
+    new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) {
+        if (!v.dataset.loaded) { $$('source', v).forEach(s => { s.src = s.dataset.src; }); v.load(); v.dataset.loaded = 1; }
+        if (!reduced) startFilm(v);
+      } else v.pause();
+    }, { rootMargin: '200px' }).observe(v);
+  });
 
   /* ---------------------------------------------------------
      Text splitting
@@ -110,7 +128,7 @@
   function intro() {
     const tl = gsap.timeline({ defaults: { ease: 'expo.out' } });
     if (!$('.hero')) return tl;
-    tl.to('.hero__video', { scale: 1, duration: 2.4, ease: 'power3.out' }, 0)
+    tl.to('.hero__video, .hero__poster', { scale: 1, duration: 2.4, ease: 'power3.out' }, 0)
       .to(heroChars, { yPercent: 0, duration: 1.4, stagger: .028 }, .1)
       .to(heroIntro, { autoAlpha: 1, y: 0, duration: 1.2, stagger: .1 }, .5);
     return tl;
@@ -273,7 +291,7 @@
     if (!reduced) {
       gsap.timeline({ scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: true } })
         .fromTo($('.hero__media', hero), { clipPath: 'inset(0% 0% 0% 0% round 0px)' }, { clipPath: 'inset(7% 4% 14% 4% round 28px)', ease: 'none' }, 0)
-        .to($('.hero__video', hero), { yPercent: 12, ease: 'none' }, 0)
+        .to($$('.hero__video, .hero__poster', hero), { yPercent: 12, ease: 'none' }, 0)
         .to($('.hero__content', hero), { yPercent: -18, autoAlpha: .2, ease: 'none' }, 0);
     }
   });
@@ -420,19 +438,11 @@
      Feature: arch opens, video plays only while visible
      --------------------------------------------------------- */
   $$('.repel').forEach(sec => {
-    const rv = $('.repel__video', sec);
-    if (rv && rv.tagName === 'VIDEO') {
-      new IntersectionObserver(([e]) => {
-        if (e.isIntersecting) {
-          if (!rv.dataset.loaded) { $$('source', rv).forEach(s => { s.src = s.dataset.src; }); rv.load(); rv.dataset.loaded = 1; }
-          if (!reduced) rv.play().catch(() => {});
-        } else rv.pause();
-      }, { rootMargin: '200px' }).observe(rv);
-    }
+    const rv = $$('.repel__video, .repel__poster', sec);
     if (reduced) return;
     const media = $('.repel__media', sec);
     gsap.to($('.repel__arch', sec), { clipPath: 'inset(0% 0% 0% 0% round 999px 999px 26px 26px)', ease: 'none', scrollTrigger: { trigger: media, start: 'top 85%', end: 'center 45%', scrub: 1 } });
-    if (rv) gsap.fromTo(rv, { scale: 1.3 }, { scale: 1.05, ease: 'none', scrollTrigger: { trigger: media, start: 'top bottom', end: 'bottom top', scrub: true } });
+    if (rv.length) gsap.fromTo(rv, { scale: 1.3 }, { scale: 1.05, ease: 'none', scrollTrigger: { trigger: media, start: 'top bottom', end: 'bottom top', scrub: true } });
     const leaf = $('.repel__leaf', sec);
     if (leaf) gsap.fromTo(leaf, { y: 120, rotation: 12 }, { y: -80, rotation: -4, ease: 'none', scrollTrigger: { trigger: sec, start: 'top bottom', end: 'bottom top', scrub: true } });
   });
@@ -441,10 +451,11 @@
      Story: mask reveal, parallax, counters
      --------------------------------------------------------- */
   $$('.story__figure').forEach(fig => {
-    const img = $('img', fig);
+    const img = $(':scope > img', fig);
+    const moving = $$(':scope > img, :scope > video, :scope > .film-poster', fig);
     if (img) { const shown = () => img.classList.add('is-loaded'); img.complete && img.naturalWidth ? shown() : img.addEventListener('load', shown); }
     gsap.to(fig, { clipPath: 'inset(0% 0% round 22px)', duration: reduced ? 0 : 1.1, ease: 'power3.out', scrollTrigger: { trigger: fig, start: 'top 95%' } });
-    if (!reduced && img) gsap.fromTo(img, { yPercent: -8 }, { yPercent: 8, ease: 'none', scrollTrigger: { trigger: fig, start: 'top bottom', end: 'bottom top', scrub: true } });
+    if (!reduced && moving.length && !fig.closest('.split--whole')) gsap.fromTo(moving, { yPercent: -8 }, { yPercent: 8, ease: 'none', scrollTrigger: { trigger: fig, start: 'top bottom', end: 'bottom top', scrub: true } });
   });
   $$('[data-count]').forEach(el => {
     if (reduced) return;

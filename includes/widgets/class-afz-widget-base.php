@@ -74,6 +74,21 @@ abstract class AFZ_Widget_Base extends Widget_Base {
 		), $extra ) );
 	}
 
+	/**
+	 * Still image laid over a film until the film really plays. iPhones in Low Power Mode refuse to
+	 * autoplay and draw a play button on the video itself; the still covers it until the first touch.
+	 */
+	protected function film_poster( $class, $poster, $poster_m = '', $phone = '(max-width: 900px) and (orientation: portrait)' ) {
+		if ( ! $poster && ! $poster_m ) {
+			return '';
+		}
+		$out = '<picture class="film-poster ' . esc_attr( $class ) . '" aria-hidden="true">';
+		if ( $poster_m && $poster ) {
+			$out .= '<source media="' . esc_attr( $phone ) . '" srcset="' . esc_url( $poster_m ) . '">';
+		}
+		return $out . '<img src="' . esc_url( $poster ? $poster : $poster_m ) . '" alt="" decoding="async"></picture>';
+	}
+
 	protected function link( $key, $label, $default = '' ) {
 		$this->add_control( $key, array(
 			'label'   => $label,

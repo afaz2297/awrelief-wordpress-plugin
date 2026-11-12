@@ -92,7 +92,9 @@ $page( 'about-us', 'Our Story', array(
 	$box( array(
 		$hero( 'Our story · Since 2024', "Created with purpose.\n{Inspired by travel.}", 'Thoughtful products, beautiful fragrances and everyday moments of relief.', array( 'size' => 'tall', 'image' => $m( 'founder-synita.webp' ), 'image_style' => 'photo' ) ),
 		$el( 'afz-split', array(
-			'image'   => $m( 'repel-poster.webp' ),
+			'image'   => $m( 'repel-poster-m.webp' ),
+			'video'   => $m( 'repel-720.mp4' ),
+			'fit'     => 'whole',
 			'number'  => '01',
 			'eyebrow' => 'Where it all began',
 			'title'   => "A personal need,\n{a better answer}",
@@ -255,6 +257,15 @@ $page( 'care-guide', 'Care Guide', array(
 				array( '_id' => 'c3', 'label' => '03', 'title' => 'Know when to stop', 'text' => 'Burn for no longer than 4 hours at a time, and never burn completely: always leave half an inch of wax at the bottom.' ),
 			),
 		) ),
+		$el( 'afz-split', array(
+			'image'   => $m( 'care-diffuser-refill.webp' ),
+			'fit'     => 'whole',
+			'side'    => 'right',
+			'theme'   => 'light',
+			'eyebrow' => 'Reed diffusers & refills',
+			'title'   => "Refill,\n{don’t replace}",
+			'body'    => '<p>A 200ml reed diffuser lasts approximately 6 to 12 weeks, and each 200ml refill lasts the same. When your diffuser runs low, keep the bottle and top it up with your chosen refill.</p>',
+		) ),
 		$el( 'afz-cards', array(
 			'eyebrow' => 'Reed diffusers',
 			'title'   => '6 to 12 weeks {of fragrance}',
@@ -269,6 +280,14 @@ $page( 'care-guide', 'Care Guide', array(
 		$el( 'afz-rich', array(
 			'eyebrow' => 'Keep in mind',
 			'body'    => '<ul><li>Never leave candles burning unattended or near draughts, open windows, air vents or fans.</li><li>When it’s time to extinguish your candle, use a candle snuffer, or blow it out gently and carefully.</li><li>Do not eat or drink any of the products. Keep all products away from pets and children at all times.</li><li>Our products are vegan and cruelty-free, and contain no silicone or parabens.</li></ul>',
+		) ),
+		$el( 'afz-split', array(
+			'image'   => $m( 'care-repellent.webp' ),
+			'fit'     => 'whole',
+			'theme'   => 'light',
+			'eyebrow' => 'Insect repellent',
+			'title'   => "Plant-based\n{protection}",
+			'body'    => '<p>Our insect repellent is DEET-free and alcohol-free, with a fresh, natural scent. It protects against biting insects such as mosquitoes, horseflies, sandflies, midges and ticks.</p>',
 		) ),
 		$el( 'afz-cards', array(
 			'eyebrow' => 'Insect repellent',

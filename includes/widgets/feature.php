@@ -46,6 +46,7 @@ class AFZ_Widget_Feature extends AFZ_Widget_Base {
 		$this->media( 'video', __( 'Video (desktop, 1080p MP4)', 'afazalif' ), 'repel-1080.mp4', 'video' );
 		$this->media( 'video_m', __( 'Video (phones, portrait MP4)', 'afazalif' ), 'repel-720.mp4', 'video' );
 		$this->media( 'poster', __( 'Poster image', 'afazalif' ), 'repel-poster.webp' );
+		$this->media( 'poster_m', __( 'Poster image (phones)', 'afazalif' ), 'repel-poster-m.webp' );
 		$this->media( 'pack', __( 'Floating product image', 'afazalif' ), 'repellent.webp' );
 		$this->section_id( 'repel' );
 		$this->end_controls_section();
@@ -57,6 +58,7 @@ class AFZ_Widget_Feature extends AFZ_Widget_Base {
 		$video   = afz_video_url( $s['video'] );
 		$mobile  = afz_video_url( $s['video_m'] );
 		$poster  = afz_video_url( afz_media_url( $s['poster'], 'full' ) );
+		$poster_m = afz_video_url( afz_media_url( $s['poster_m'] ?? '', 'full' ) );
 		$this->open();
 		?>
 		<section class="repel"<?php echo $this->id_attr( $s ); // phpcs:ignore ?>>
@@ -64,10 +66,11 @@ class AFZ_Widget_Feature extends AFZ_Widget_Base {
 				<div class="repel__media" data-cursor="Play">
 					<div class="repel__arch">
 						<?php if ( $video ) : ?>
-							<video class="repel__video" muted loop playsinline disablepictureinpicture disableremoteplayback preload="none"<?php echo $poster ? ' poster="' . esc_url( $poster ) . '"' : ''; ?> data-lazy-video>
+							<video class="repel__video" muted loop playsinline disablepictureinpicture disableremoteplayback preload="none"<?php echo $poster ? ' poster="' . esc_url( $poster ) . '"' : ''; ?> data-lazy-video data-film>
 								<?php if ( $mobile ) : ?><source data-src="<?php echo esc_url( $mobile ); ?>" type="video/mp4" media="(max-width: 900px)"><?php endif; ?>
 								<source data-src="<?php echo esc_url( $video ); ?>" type="video/mp4">
 							</video>
+							<?php echo $this->film_poster( 'repel__poster', $poster, $mobile ? $poster_m : '', '(max-width: 900px)' ); // phpcs:ignore ?>
 						<?php elseif ( $poster ) : ?>
 							<img class="repel__video" src="<?php echo esc_url( $poster ); ?>" alt="" loading="lazy">
 						<?php endif; ?>

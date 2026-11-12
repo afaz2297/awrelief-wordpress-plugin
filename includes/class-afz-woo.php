@@ -298,7 +298,7 @@ class AFZ_Woo {
 		}
 		$id    = $product->get_id();
 		$sc    = $plain ? null : AFZ_Scents::of_product( $id );
-		$aura  = $plain ? 'transparent' : ( $sc ? $sc['aura'] : '#c9a04a' );
+		$aura  = AFZ_Scents::aura( $product, $plain, $sc );
 		$price = $product->get_price_html();
 		$notes = trim( (string) $product->get_meta( '_afz_card_note' ) );
 		if ( '' === $notes && $sc ) {

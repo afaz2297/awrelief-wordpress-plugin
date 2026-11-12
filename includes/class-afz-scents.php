@@ -58,6 +58,22 @@ class AFZ_Scents {
 			'label'       => __( 'Plain card background', 'afazalif' ),
 			'description' => __( 'Show this product on a plain dark card, without the coloured glow.', 'afazalif' ),
 		) );
+		woocommerce_wp_text_input( array(
+			'id'          => '_afz_aura',
+			'label'       => __( 'Glow colour', 'afazalif' ),
+			'placeholder' => '#a8cc8c',
+			'description' => __( 'Colour behind the product on cards and its page, for products without a scent. Leave empty to use the scent colour.', 'afazalif' ),
+			'desc_tip'    => true,
+		) );
+	}
+
+	/** Glow colour behind a product: its own colour, then its scent, then gold. */
+	public static function aura( $product, $plain = false, $scent = null ) {
+		$own = sanitize_hex_color( (string) $product->get_meta( '_afz_aura' ) );
+		if ( $own ) {
+			return $own;
+		}
+		return $plain ? 'transparent' : ( $scent ? $scent['aura'] : '#c9a04a' );
 	}
 
 	public function save_card_note( $product ) {
@@ -66,6 +82,9 @@ class AFZ_Scents {
 			$product->update_meta_data( '_afz_card_note', sanitize_text_field( wp_unslash( $_POST['_afz_card_note'] ) ) );
 		}
 		$product->update_meta_data( '_afz_plain', empty( $_POST['_afz_plain'] ) ? 'no' : 'yes' );
+		if ( isset( $_POST['_afz_aura'] ) ) {
+			$product->update_meta_data( '_afz_aura', (string) sanitize_hex_color( wp_unslash( $_POST['_afz_aura'] ) ) );
+		}
 		// phpcs:enable
 	}
 

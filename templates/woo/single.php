@@ -13,7 +13,7 @@ while ( have_posts() ) :
 		$product = wc_get_product( get_the_ID() );
 	}
 	$afz_scent   = AFZ_Scents::of_product( $product->get_id() );
-	$afz_aura    = $afz_scent ? $afz_scent['aura'] : '#c9a04a';
+	$afz_aura    = AFZ_Scents::aura( $product, false, $afz_scent );
 	$afz_aura2   = $afz_scent ? $afz_scent['aura2'] : '#e8c9a0';
 	$afz_images  = array_values( array_unique( array_filter( array_merge( array( (int) $product->get_image_id() ), array_map( 'intval', $product->get_gallery_image_ids() ) ) ) ) );
 	$afz_label   = AFZ_Scents::format_label( $product );
@@ -102,10 +102,10 @@ while ( have_posts() ) :
 							<?php endif; ?>
 							<details><summary><?php esc_html_e( 'Delivery & returns', 'afazalif' ); ?></summary><div class="pdp__acc-body">
 								<p><?php esc_html_e( 'UK Standard Delivery £3.99 (up to 4 working days), free over £40.', 'afazalif' ); ?></p>
-								<p><?php esc_html_e( 'UK Next Day Delivery £6.99 when you order before 4pm.', 'afazalif' ); ?></p>
+								<p><?php esc_html_e( 'UK Next Day Delivery £6.99 when you order before 4pm.', 'afazalif' ); ?>
+								<?php if ( $afz_delivery ) : ?> <a href="<?php echo esc_url( get_permalink( $afz_delivery ) ); ?>"><?php esc_html_e( 'Delivery information', 'afazalif' ); ?></a><?php endif; ?></p>
 								<p><?php esc_html_e( 'Changed your mind? You can return unused items within 14 days.', 'afazalif' ); ?>
-								<?php if ( $afz_delivery ) : ?> <a href="<?php echo esc_url( get_permalink( $afz_delivery ) ); ?>"><?php esc_html_e( 'Delivery', 'afazalif' ); ?></a><?php endif; ?>
-								<?php if ( $afz_returns ) : ?> · <a href="<?php echo esc_url( get_permalink( $afz_returns ) ); ?>"><?php esc_html_e( 'Returns', 'afazalif' ); ?></a><?php endif; ?></p>
+								<?php if ( $afz_returns ) : ?> <a href="<?php echo esc_url( get_permalink( $afz_returns ) ); ?>"><?php esc_html_e( 'Returns information', 'afazalif' ); ?></a><?php endif; ?></p>
 							</div></details>
 						</div>
 					</div>

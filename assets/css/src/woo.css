@@ -458,3 +458,7 @@
 .afz #order_review thead th.product-total { text-align: right; }
 /* on phones the section is very tall, so the page-wide aura stretched into a vertical band */
 @media (max-width: 900px) { .afz .pdp__aura { bottom: auto; height: 680px; } }
+
+/* light tiles behind the pictures in "Also comes in", so the black packs stand out */
+.afz .pdp__format { background: rgba(253,232,164,.08); }
+.afz .pdp__format-img { object-fit: contain; padding: 4px; background: radial-gradient(circle at 50% 38%, #fffaf0 0%, #f1e6d2 62%, #e2d3b8 100%); }

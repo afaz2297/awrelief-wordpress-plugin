@@ -65,7 +65,7 @@ class AFZ_Widget_Products extends AFZ_Widget_Base {
 							continue;
 						}
 						$sc       = in_array( $id, $plain, true ) ? null : AFZ_Scents::of_product( $id );
-						$aura     = in_array( $id, $plain, true ) ? 'transparent' : ( $sc ? $sc['aura'] : '#c9a04a' );
+						$aura     = AFZ_Scents::aura( $p, in_array( $id, $plain, true ), $sc );
 						$price    = afz_money( wc_get_price_to_display( $p ) );
 						list( , $count ) = self::rating( $p );
 						// a short line under the name: the product's own note, or the first note of each scent layer
