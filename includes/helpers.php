@@ -86,7 +86,9 @@ function afz_link_attrs( $link, $extra = array() ) {
 function afz_media_url( $media, $size = 'full' ) {
 	if ( is_array( $media ) ) {
 		if ( ! empty( $media['id'] ) ) {
+			// videos have no image sizes: take the file URL, so a copied site never keeps the old domain
 			$src = wp_get_attachment_image_url( (int) $media['id'], $size );
+			$src = $src ? $src : wp_get_attachment_url( (int) $media['id'] );
 			if ( $src ) {
 				return $src;
 			}
