@@ -127,7 +127,8 @@ class AFZ_Frontend {
 		}
 		include AFZ_DIR . 'templates/cart.php';
 		include AFZ_DIR . 'templates/search.php';
-		if ( ! $editor && afz_on( 'popup_on' ) && ! afz_is_quiet_page() ) {
+		// always on the page: the top bar's "Join" opens it on request; "Show the popup" only controls the automatic opening
+		if ( ! $editor ) {
 			include AFZ_DIR . 'templates/popup.php';
 		}
 		if ( ! $editor && afz_on( 'cookies_on' ) ) {

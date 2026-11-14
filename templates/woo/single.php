@@ -102,10 +102,10 @@ while ( have_posts() ) :
 							<?php endif; ?>
 							<details><summary><?php esc_html_e( 'Delivery & returns', 'afazalif' ); ?></summary><div class="pdp__acc-body">
 								<p><?php esc_html_e( 'UK Standard Delivery £3.99 (up to 4 working days), free over £40.', 'afazalif' ); ?></p>
-								<p><?php esc_html_e( 'UK Next Day Delivery £6.99 when you order before 4pm.', 'afazalif' ); ?>
-								<?php if ( $afz_delivery ) : ?> <a href="<?php echo esc_url( get_permalink( $afz_delivery ) ); ?>"><?php esc_html_e( 'Delivery information', 'afazalif' ); ?></a><?php endif; ?></p>
+								<p><?php esc_html_e( 'UK Next Day Delivery £6.99 when you order before 4pm, free over £80.', 'afazalif' ); ?>
+								<?php if ( $afz_delivery ) : ?> <a href="<?php echo esc_url( get_permalink( $afz_delivery ) ); ?>"><?php esc_html_e( 'Delivery', 'afazalif' ); ?></a><?php endif; ?></p>
 								<p><?php esc_html_e( 'Changed your mind? You can return unused items within 14 days.', 'afazalif' ); ?>
-								<?php if ( $afz_returns ) : ?> <a href="<?php echo esc_url( get_permalink( $afz_returns ) ); ?>"><?php esc_html_e( 'Returns information', 'afazalif' ); ?></a><?php endif; ?></p>
+								<?php if ( $afz_returns ) : ?> <a href="<?php echo esc_url( get_permalink( $afz_returns ) ); ?>"><?php esc_html_e( 'Returns', 'afazalif' ); ?></a><?php endif; ?></p>
 							</div></details>
 						</div>
 					</div>

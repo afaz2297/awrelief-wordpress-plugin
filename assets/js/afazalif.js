@@ -904,17 +904,28 @@
     if (!popup || !body.classList.contains('popup-open')) return;
     body.classList.remove('popup-open'); popup.setAttribute('aria-hidden', 'true'); lock(false);
   }
+  function openPopup() {
+    if (!popup) return;
+    body.classList.add('popup-open'); popup.setAttribute('aria-hidden', 'false'); lock(true);
+    store.set('afz-popup', String(Date.now()));
+    const field = $('input[type="email"]', popup);
+    if (field) setTimeout(() => field.focus({ preventScroll: true }), 450);
+  }
+  if (popup) {
+    popup.addEventListener('click', e => { if (e.target.closest('[data-close-popup]')) closePopup(); });
+    // the top bar's mailing-list message opens it on request, on every page
+    $$('[data-open-popup]').forEach(b => b.addEventListener('click', openPopup));
+  }
   if (popup && C.popup && C.popup.on) {
     const last = parseInt(store.get('afz-popup') || '0', 10);
     const due = !store.get('afz-subscribed') && Date.now() - last > 30 * 864e5;
-    const busy = () => ['cart-open', 'menu-open', 'search-open'].some(c => body.classList.contains(c)) || ($('.cookies.is-open') !== null);
+    const busy = () => ['cart-open', 'menu-open', 'search-open', 'popup-open'].some(c => body.classList.contains(c)) || ($('.cookies.is-open') !== null);
     const show = () => {
+      if (body.classList.contains('popup-open') || Date.now() - parseInt(store.get('afz-popup') || '0', 10) < 60000) return; // already opened from the top bar
       if (busy()) { setTimeout(show, 4000); return; } // wait for the cookie choice and any open drawer
-      body.classList.add('popup-open'); popup.setAttribute('aria-hidden', 'false'); lock(true);
-      store.set('afz-popup', String(Date.now()));
+      openPopup();
     };
     if (due) setTimeout(show, Math.max(3, C.popup.delay || 12) * 1000);
-    popup.addEventListener('click', e => { if (e.target.closest('[data-close-popup]')) closePopup(); });
   }
 
   /* ---------------------------------------------------------

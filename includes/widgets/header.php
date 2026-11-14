@@ -84,7 +84,11 @@ class AFZ_Widget_Header extends AFZ_Widget_Base {
 			<div class="announce" role="region" aria-label="<?php esc_attr_e( 'Announcements', 'afazalif' ); ?>">
 				<div class="announce__track">
 					<?php foreach ( array_values( $messages ) as $i => $m ) : ?>
-						<p class="announce__msg<?php echo 0 === $i ? ' is-active' : ''; ?>"><?php echo esc_html( $m ); ?></p>
+						<?php if ( preg_match( '/\b(join|sign up|subscribe)\b/i', $m ) ) : // the mailing-list message opens the sign-up popup ?>
+							<p class="announce__msg<?php echo 0 === $i ? ' is-active' : ''; ?>"><button type="button" class="announce__join" data-open-popup aria-haspopup="dialog"><span class="announce__text"><?php echo esc_html( $m ); ?></span><span class="announce__cta" aria-hidden="true">→</span></button></p>
+						<?php else : ?>
+							<p class="announce__msg<?php echo 0 === $i ? ' is-active' : ''; ?>"><?php echo esc_html( $m ); ?></p>
+						<?php endif; ?>
 					<?php endforeach; ?>
 				</div>
 			</div>

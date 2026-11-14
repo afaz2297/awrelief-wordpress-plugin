@@ -256,3 +256,20 @@ html body { font-weight: 400; }
 .afz .cart-up { background: #2a241b; }
 .afz .split--whole .story__figure img, .afz .split--whole .story__figure .split__video, .afz .split--whole .story__figure .split__poster { inset: 0; height: 100%; object-position: 50% 50%; }
 .afz .split--whole .story__figure::after { display: none; }
+
+/* top bar: centred, kept inside the gutters, room for two lines on phones so nothing is cut off */
+.afz .announce__msg { padding-inline: var(--gutter); text-align: center; line-height: 1.45; }
+.afz .announce__msg:not(.is-active) { pointer-events: none; }
+.afz .announce__join { all: unset; box-sizing: border-box; cursor: pointer; text-align: center; color: var(--ivory); }
+.afz .announce__text { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; text-decoration-color: rgba(212, 175, 95, .6); }
+.afz .announce__cta { display: inline-block; margin-left: .7em; color: var(--gold-hi); transition: transform .4s var(--ease); }
+.afz .announce__join:hover .announce__cta, .afz .announce__join:focus-visible .announce__cta { transform: translateX(4px); }
+.afz .announce__join:focus-visible { outline: 1px solid var(--gold); outline-offset: 3px; }
+@media (max-width: 700px) {
+  :root { --announce-h: 44px; }
+  .afz .announce__msg { font-size: 10px; letter-spacing: .12em; line-height: 1.55; }
+}
+/* popup columns may shrink below their content, so the text and form never run past the card on phones */
+.afz .popup__card { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); }
+.afz .popup__body { min-width: 0; }
+@media (max-width: 700px) { .afz .popup__card { grid-template-columns: minmax(0, 1fr); } }

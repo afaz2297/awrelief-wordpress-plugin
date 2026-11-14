@@ -462,3 +462,19 @@
 /* light tiles behind the pictures in "Also comes in", so the black packs stand out */
 .afz .pdp__format { background: rgba(253,232,164,.08); }
 .afz .pdp__format-img { object-fit: contain; padding: 4px; background: radial-gradient(circle at 50% 38%, #fffaf0 0%, #f1e6d2 62%, #e2d3b8 100%); }
+
+/* scent notes in the same reading serif as the product text, easier to read than the display face */
+.afz .pdp__notes dd { font: 400 20px/1.4 var(--f-text); font-variation-settings: normal; letter-spacing: 0; color: var(--ivory); }
+.afz .pdp__notes div { align-items: baseline; }
+
+/* checkout summary: product picture beside each line */
+.afz #order_review table.shop_table td.product-name { position: relative; line-height: 1.4; padding-left: 82px; height: 110px; /* a cell's height is its minimum: room for the picture */ }
+.afz .afz-ri__img { position: absolute; left: 0; top: 14px; width: 64px; height: 80px; border-radius: 10px; overflow: hidden; background: radial-gradient(circle at 50% 38%, #fffaf0 0%, #f1e6d2 62%, #e2d3b8 100%); }
+.afz .afz-ri__img img { display: block; width: 100%; height: 100%; object-fit: contain; padding: 4px; }
+.afz .afz-ri__name { display: block; padding-top: 4px; color: var(--ivory); font-weight: 500; }
+.afz #order_review .product-quantity { display: block; margin-top: 8px; font: 400 11px var(--f-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--gold-hi); }
+.afz #order_review table.shop_table .cart_item td.product-total { vertical-align: top; padding-top: 18px; }
+@media (max-width: 600px) {
+  .afz #order_review table.shop_table td.product-name { padding-left: 70px; height: 100px; }
+  .afz .afz-ri__img { width: 56px; height: 70px; }
+}

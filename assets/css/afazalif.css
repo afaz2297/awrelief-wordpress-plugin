@@ -1105,6 +1105,23 @@ html body { font-weight: 400; }
 .afz .split--whole .story__figure img, .afz .split--whole .story__figure .split__video, .afz .split--whole .story__figure .split__poster { inset: 0; height: 100%; object-position: 50% 50%; }
 .afz .split--whole .story__figure::after { display: none; }
 
+/* top bar: centred, kept inside the gutters, room for two lines on phones so nothing is cut off */
+.afz .announce__msg { padding-inline: var(--gutter); text-align: center; line-height: 1.45; }
+.afz .announce__msg:not(.is-active) { pointer-events: none; }
+.afz .announce__join { all: unset; box-sizing: border-box; cursor: pointer; text-align: center; color: var(--ivory); }
+.afz .announce__text { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; text-decoration-color: rgba(212, 175, 95, .6); }
+.afz .announce__cta { display: inline-block; margin-left: .7em; color: var(--gold-hi); transition: transform .4s var(--ease); }
+.afz .announce__join:hover .announce__cta, .afz .announce__join:focus-visible .announce__cta { transform: translateX(4px); }
+.afz .announce__join:focus-visible { outline: 1px solid var(--gold); outline-offset: 3px; }
+@media (max-width: 700px) {
+  :root { --announce-h: 44px; }
+  .afz .announce__msg { font-size: 10px; letter-spacing: .12em; line-height: 1.55; }
+}
+/* popup columns may shrink below their content, so the text and form never run past the card on phones */
+.afz .popup__card { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); }
+.afz .popup__body { min-width: 0; }
+@media (max-width: 700px) { .afz .popup__card { grid-template-columns: minmax(0, 1fr); } }
+
 
 /* ---------- assets/css/src/woo.css ---------- */
 /* =========================================================
@@ -1571,6 +1588,22 @@ html body { font-weight: 400; }
 /* light tiles behind the pictures in "Also comes in", so the black packs stand out */
 .afz .pdp__format { background: rgba(253,232,164,.08); }
 .afz .pdp__format-img { object-fit: contain; padding: 4px; background: radial-gradient(circle at 50% 38%, #fffaf0 0%, #f1e6d2 62%, #e2d3b8 100%); }
+
+/* scent notes in the same reading serif as the product text, easier to read than the display face */
+.afz .pdp__notes dd { font: 400 20px/1.4 var(--f-text); font-variation-settings: normal; letter-spacing: 0; color: var(--ivory); }
+.afz .pdp__notes div { align-items: baseline; }
+
+/* checkout summary: product picture beside each line */
+.afz #order_review table.shop_table td.product-name { position: relative; line-height: 1.4; padding-left: 82px; height: 110px; /* a cell's height is its minimum: room for the picture */ }
+.afz .afz-ri__img { position: absolute; left: 0; top: 14px; width: 64px; height: 80px; border-radius: 10px; overflow: hidden; background: radial-gradient(circle at 50% 38%, #fffaf0 0%, #f1e6d2 62%, #e2d3b8 100%); }
+.afz .afz-ri__img img { display: block; width: 100%; height: 100%; object-fit: contain; padding: 4px; }
+.afz .afz-ri__name { display: block; padding-top: 4px; color: var(--ivory); font-weight: 500; }
+.afz #order_review .product-quantity { display: block; margin-top: 8px; font: 400 11px var(--f-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--gold-hi); }
+.afz #order_review table.shop_table .cart_item td.product-total { vertical-align: top; padding-top: 18px; }
+@media (max-width: 600px) {
+  .afz #order_review table.shop_table td.product-name { padding-left: 70px; height: 100px; }
+  .afz .afz-ri__img { width: 56px; height: 70px; }
+}
 
 
 /* ---------- assets/css/src/pages.css ---------- */

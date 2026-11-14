@@ -38,6 +38,16 @@ class AFZ_Woo {
 			return str_replace( "\u{FFFC}", '', $text );
 		}, 5 );
 		add_action( 'woocommerce_review_order_before_order_total', array( $this, 'meter_row' ) );
+		// checkout summary: a picture of each product, with "Qty: 1" under its name
+		add_action( 'woocommerce_review_order_before_cart_contents', function () {
+			add_filter( 'woocommerce_cart_item_name', array( $this, 'review_item_name' ), 20, 2 );
+		} );
+		add_action( 'woocommerce_review_order_after_cart_contents', function () {
+			remove_filter( 'woocommerce_cart_item_name', array( $this, 'review_item_name' ), 20 );
+		} );
+		add_filter( 'woocommerce_checkout_cart_item_quantity', function ( $html, $item ) {
+			return '<span class="product-quantity">' . esc_html( sprintf( __( 'Qty: %d', 'afazalif' ), (int) $item['quantity'] ) ) . '</span>';
+		}, 20, 2 );
 		add_filter( 'woocommerce_output_related_products_args', function ( $a ) {
 			$a['posts_per_page'] = 4;
 			$a['columns']        = 4;
@@ -153,6 +163,19 @@ class AFZ_Woo {
 		echo '<div class="afz-meter"><div class="cart__ship' . ( $left <= 0 ? ' is-free' : '' ) . '"><div class="cart__ship-top">' . afz_icon( 'truck' ) . '<p class="cart__ship-msg">'; // phpcs:ignore
 		echo $left > 0 ? wp_kses_post( sprintf( __( 'Spend <b>%s</b> more for <b>free UK delivery</b>', 'afazalif' ), afz_money( $left ) ) ) : '<b>' . esc_html__( 'You\'ve unlocked free UK delivery ✦', 'afazalif' ) . '</b>';
 		echo '</p></div><span class="cart__ship-bar"><i style="transform:scaleX(' . esc_attr( min( 1, $sum / $free ) ) . ')"></i></span></div></div>';
+	}
+
+	/** Checkout summary row: product picture on a light tile, then the name. */
+	public function review_item_name( $name, $item ) {
+		$product = isset( $item['data'] ) ? $item['data'] : null;
+		$img_id  = $product ? (int) $product->get_image_id() : 0;
+		if ( ! $img_id && $product && $product->get_parent_id() ) {
+			$parent = wc_get_product( $product->get_parent_id() );
+			$img_id = $parent ? (int) $parent->get_image_id() : 0;
+		}
+		$src = $img_id ? wp_get_attachment_image_url( $img_id, 'woocommerce_thumbnail' ) : '';
+		$pic = $src ? '<span class="afz-ri__img"><img src="' . esc_url( $src ) . '" alt="" width="128" height="160" loading="lazy" decoding="async"></span>' : '';
+		return $pic . '<span class="afz-ri__name">' . $name . '</span>';
 	}
 
 	/** On checkout, a one-line reminder when free delivery is close. */
