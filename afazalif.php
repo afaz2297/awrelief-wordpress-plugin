@@ -32,6 +32,7 @@ require_once AFZ_DIR . 'includes/class-afz-forms.php';
 require_once AFZ_DIR . 'includes/class-afz-elementor.php';
 require_once AFZ_DIR . 'includes/class-afz-performance.php';
 require_once AFZ_DIR . 'includes/class-afz-security.php';
+require_once AFZ_DIR . 'includes/class-afz-updates.php';
 
 AFZ_Settings::instance();
 AFZ_Frontend::instance();
@@ -42,6 +43,7 @@ AFZ_Forms::instance();
 AFZ_Elementor::instance();
 AFZ_Performance::instance();
 AFZ_Security::instance();
+AFZ_Updates::init();
 
 register_activation_hook( __FILE__, array( 'AFZ_Settings', 'install_defaults' ) );
 register_activation_hook( __FILE__, array( 'AFZ_Forms', 'install' ) );

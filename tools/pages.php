@@ -181,11 +181,10 @@ $page( 'delivery', 'Delivery', array(
 		$el( 'afz-cards', array(
 			'eyebrow' => 'Delivery options',
 			'title'   => 'Choose your {pace}',
-			'columns' => '3',
+			'columns' => '2',
 			'items'   => array(
 				array( '_id' => 'd1', 'label' => 'UK', 'title' => 'Standard Delivery', 'text' => "Up to 4 working days\nMonday to Saturday, excluding bank holidays", 'meta' => '£3.99', 'note' => 'Free over £40' ),
 				array( '_id' => 'd2', 'label' => 'UK', 'title' => 'Next Day Delivery', 'text' => "Order before 4pm GMT to receive your order the next day\nMonday to Saturday", 'meta' => '£6.99', 'note' => 'Free over £80' ),
-				array( '_id' => 'd3', 'label' => 'International', 'title' => 'Europe Standard Delivery', 'text' => 'Up to 6 working days', 'meta' => '£10.00', 'note' => '' ),
 			),
 		) ),
 		$el( 'afz-rich', array(
