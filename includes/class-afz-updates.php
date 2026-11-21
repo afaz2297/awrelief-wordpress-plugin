@@ -11,10 +11,23 @@ class AFZ_Updates {
 
 	const OPTION = 'afz_content_updates';
 
-	/** Step name => method. New steps go at the end. */
+	/**
+	 * Step name => method. New steps go at the end.
+	 * A new set of scent pictures: put the files in assets/img/scents/, update SCENTS and rename
+	 * the scent step (e.g. -v3) so it runs again on sites that already had the earlier set.
+	 */
 	const STEPS = array(
-		'2026-11-scent-cutouts'   => 'scent_cutouts',
+		'2026-11-scent-images-v2'  => 'scent_images',
 		'2026-11-delivery-uk-only' => 'delivery_uk_only',
+	);
+
+	/** Scent => current picture in assets/img/scents/ and every earlier file it replaces. */
+	const SCENTS = array(
+		'spice'    => array( 'scent-notes-spice-v2.webp', array( 'website-scents.png', 'scent-notes-spice.webp' ) ),
+		'chill'    => array( 'scent-notes-chill-v2.webp', array( 'website-scents-2.png', 'scent-notes-chill.webp' ) ),
+		'snuggles' => array( 'scent-notes-snuggles-v2.webp', array( 'website-scents-2-1.png', 'scent-notes-snuggles.webp' ) ),
+		'vines'    => array( 'scent-notes-vines-v2.webp', array( 'website-scents-3.png', 'scent-notes-vines.webp' ) ),
+		'cashmere' => array( 'scent-notes-cashmere-v2.webp', array( 'website-scents-4.png', 'scent-notes-cashmere.webp' ) ),
 	);
 
 	public static function init() {
@@ -39,30 +52,29 @@ class AFZ_Updates {
 	}
 
 	/**
-	 * The scent-notes pictures had a white background. The cut-out versions ship in
-	 * assets/img/scents/; every product that used an old picture gets the new one in its place.
-	 * The old pictures stay in the media library.
+	 * Scent-notes pictures with a transparent background (the originals were on white). Every
+	 * product that shows an earlier version gets the current file from assets/img/scents/ in its
+	 * place. Earlier versions stay in the media library.
 	 */
-	private static function scent_cutouts() {
-		$map = array(
-			'website-scents.png'     => 'scent-notes-spice.webp',
-			'website-scents-2.png'   => 'scent-notes-chill.webp',
-			'website-scents-2-1.png' => 'scent-notes-snuggles.webp',
-			'website-scents-3.png'   => 'scent-notes-vines.webp',
-			'website-scents-4.png'   => 'scent-notes-cashmere.webp',
-		);
+	private static function scent_images() {
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 		require_once ABSPATH . 'wp-admin/includes/media.php';
 		require_once ABSPATH . 'wp-admin/includes/image.php';
 		global $wpdb;
 		$log = array();
-		foreach ( $map as $old => $new ) {
-			$old_ids = array_map( 'intval', $wpdb->get_col( $wpdb->prepare(
-				"SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_wp_attached_file' AND ( meta_value = %s OR meta_value LIKE %s )",
-				$old,
-				'%/' . $wpdb->esc_like( $old )
-			) ) );
-			$src = AFZ_DIR . 'assets/img/scents/' . $new;
+		foreach ( self::SCENTS as $scent => $files ) {
+			list( $new, $olds ) = $files;
+			$old_ids = array();
+			foreach ( $olds as $old ) {
+				$old_ids = array_merge( $old_ids, array_map( 'intval', $wpdb->get_col( $wpdb->prepare(
+					"SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_wp_attached_file' AND ( meta_value = %s OR meta_value LIKE %s )",
+					$old,
+					'%/' . $wpdb->esc_like( $old )
+				) ) ) );
+			}
+			$old_ids = array_values( array_unique( $old_ids ) );
+			$old     = $scent;
+			$src     = AFZ_DIR . 'assets/img/scents/' . $new;
 			if ( ! $old_ids || ! file_exists( $src ) ) {
 				$log[ $old ] = 'skipped';
 				continue;
@@ -86,7 +98,7 @@ class AFZ_Updates {
 			}
 			$tmp = wp_tempnam( $new );
 			copy( $src, $tmp );
-			$new_id = media_handle_sideload( array( 'name' => $new, 'tmp_name' => $tmp ), 0, ucwords( str_replace( '-', ' ', basename( $new, '.webp' ) ) ) );
+			$new_id = media_handle_sideload( array( 'name' => $new, 'tmp_name' => $tmp ), 0, ucwords( str_replace( '-', ' ', preg_replace( '/-v\d+$/', '', pathinfo( $new, PATHINFO_FILENAME ) ) ) ) );
 			if ( is_wp_error( $new_id ) ) {
 				wp_delete_file( $tmp );
 				$log[ $old ] = 'upload failed: ' . $new_id->get_error_message();
