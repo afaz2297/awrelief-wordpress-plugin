@@ -17,17 +17,29 @@ class AFZ_Updates {
 	 * the scent step (e.g. -v3) so it runs again on sites that already had the earlier set.
 	 */
 	const STEPS = array(
-		'2026-11-scent-images-v2'  => 'scent_images',
+		'2026-11-scent-images-v3'  => 'scent_images',
 		'2026-11-delivery-uk-only' => 'delivery_uk_only',
 	);
 
-	/** Scent => current picture in assets/img/scents/ and every earlier file it replaces. */
+	/**
+	 * Scent => current picture in assets/img/scents/ and every earlier file it replaces.
+	 * A plain file name matches in any upload folder; a name with a folder ("2024/03/1.png")
+	 * matches only that file, for generic names that other uploads share.
+	 */
 	const SCENTS = array(
-		'spice'    => array( 'scent-notes-spice-v2.webp', array( 'website-scents.png', 'scent-notes-spice.webp' ) ),
-		'chill'    => array( 'scent-notes-chill-v2.webp', array( 'website-scents-2.png', 'scent-notes-chill.webp' ) ),
-		'snuggles' => array( 'scent-notes-snuggles-v2.webp', array( 'website-scents-2-1.png', 'scent-notes-snuggles.webp' ) ),
-		'vines'    => array( 'scent-notes-vines-v2.webp', array( 'website-scents-3.png', 'scent-notes-vines.webp' ) ),
-		'cashmere' => array( 'scent-notes-cashmere-v2.webp', array( 'website-scents-4.png', 'scent-notes-cashmere.webp' ) ),
+		'heaven'              => array( 'scent-notes-heaven-v3.webp', array( '2024/03/1.png' ) ),
+		'cozy'                => array( 'scent-notes-cozy-v3.webp', array( '2024/03/2.png' ) ),
+		'tropical-samba'      => array( 'scent-notes-tropical-samba-v3.webp', array( '2024/03/3.png' ) ),
+		'lime-basil-mandarin' => array( 'scent-notes-lime-basil-mandarin-v3.webp', array( '2024/03/4.png' ) ),
+		'rose-trilogy'        => array( 'scent-notes-rose-trilogy-v3.webp', array( '2024/03/5.png' ) ),
+		'seychelles'          => array( 'scent-notes-seychelles-v3.webp', array( '2024/03/6.png' ) ),
+		'serene'              => array( 'scent-notes-serene-v3.webp', array( '2024/03/7.png' ) ),
+		'apple'               => array( 'scent-notes-apple-v3.webp', array( '2024/03/9.png' ) ),
+		'spice'               => array( 'scent-notes-spice-v3.webp', array( 'website-scents.png', 'scent-notes-spice.webp', 'scent-notes-spice-v2.webp' ) ),
+		'chill'               => array( 'scent-notes-chill-v3.webp', array( 'website-scents-2.png', 'scent-notes-chill.webp', 'scent-notes-chill-v2.webp' ) ),
+		'snuggles'            => array( 'scent-notes-snuggles-v3.webp', array( 'website-scents-2-1.png', 'scent-notes-snuggles.webp', 'scent-notes-snuggles-v2.webp' ) ),
+		'vines'               => array( 'scent-notes-vines-v3.webp', array( 'website-scents-3.png', 'scent-notes-vines.webp', 'scent-notes-vines-v2.webp' ) ),
+		'cashmere'            => array( 'scent-notes-cashmere-v3.webp', array( 'website-scents-4.png', 'scent-notes-cashmere.webp', 'scent-notes-cashmere-v2.webp' ) ),
 	);
 
 	public static function init() {
@@ -40,13 +52,18 @@ class AFZ_Updates {
 		}
 		$done = (array) get_option( self::OPTION, array() );
 		foreach ( self::STEPS as $step => $method ) {
-			if ( isset( $done[ $step ] ) ) {
+			if ( isset( $done[ $step ] ) && 'running' !== $done[ $step ]['result'] ) {
 				continue;
 			}
-			// mark first, so a step that fails half way is never repeated on every page load
-			$done[ $step ] = array( 'time' => time(), 'result' => 'started' );
-			update_option( self::OPTION, $done, false );
-			$done[ $step ]['result'] = call_user_func( array( __CLASS__, $method ) );
+			if ( ! isset( $done[ $step ] ) ) {
+				$done[ $step ] = array( 'time' => time(), 'result' => 'running' );
+				update_option( self::OPTION, $done, false );
+			}
+			$result = call_user_func( array( __CLASS__, $method ), $step );
+			if ( null === $result ) {
+				return; // more to do: carries on at the next dashboard page load
+			}
+			$done[ $step ]['result'] = $result;
 			update_option( self::OPTION, $done, false );
 		}
 	}
@@ -56,13 +73,25 @@ class AFZ_Updates {
 	 * product that shows an earlier version gets the current file from assets/img/scents/ in its
 	 * place. Earlier versions stay in the media library.
 	 */
-	private static function scent_images() {
+	private static function scent_images( $step ) {
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 		require_once ABSPATH . 'wp-admin/includes/media.php';
 		require_once ABSPATH . 'wp-admin/includes/image.php';
 		global $wpdb;
-		$log = array();
+		// each picture is uploaded and resized, so a few per page load keeps under the host's time limit;
+		// progress is saved before each one, so a time-out never repeats or skips a picture
+		$key    = self::OPTION . '_' . $step;
+		$log    = (array) get_option( $key, array() );
+		$budget = 4;
 		foreach ( self::SCENTS as $scent => $files ) {
+			if ( isset( $log[ $scent ] ) ) {
+				continue;
+			}
+			if ( $budget-- <= 0 ) {
+				return null;
+			}
+			$log[ $scent ] = 'started';
+			update_option( $key, $log, false );
 			list( $new, $olds ) = $files;
 			$old_ids = array();
 			foreach ( $olds as $old ) {
@@ -77,6 +106,7 @@ class AFZ_Updates {
 			$src     = AFZ_DIR . 'assets/img/scents/' . $new;
 			if ( ! $old_ids || ! file_exists( $src ) ) {
 				$log[ $old ] = 'skipped';
+				update_option( $key, $log, false );
 				continue;
 			}
 			// products that show one of the old pictures
@@ -94,6 +124,7 @@ class AFZ_Updates {
 			}
 			if ( ! $products ) {
 				$log[ $old ] = 'not used';
+				update_option( $key, $log, false );
 				continue;
 			}
 			$tmp = wp_tempnam( $new );
@@ -102,6 +133,7 @@ class AFZ_Updates {
 			if ( is_wp_error( $new_id ) ) {
 				wp_delete_file( $tmp );
 				$log[ $old ] = 'upload failed: ' . $new_id->get_error_message();
+				update_option( $key, $log, false );
 				continue;
 			}
 			update_post_meta( $new_id, '_wp_attachment_image_alt', get_post_meta( $old_ids[0], '_wp_attachment_image_alt', true ) );
@@ -130,6 +162,7 @@ class AFZ_Updates {
 				}
 			}
 			$log[ $old ] = $new_id . ' on ' . $changed . ' products';
+			update_option( $key, $log, false );
 		}
 		return $log;
 	}
