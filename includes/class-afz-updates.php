@@ -19,6 +19,7 @@ class AFZ_Updates {
 	const STEPS = array(
 		'2026-11-scent-images-v3'  => 'scent_images',
 		'2026-11-delivery-uk-only' => 'delivery_uk_only',
+		'2026-11-site-name'        => 'site_name',
 	);
 
 	/**
@@ -165,6 +166,15 @@ class AFZ_Updates {
 			update_option( $key, $log, false );
 		}
 		return $log;
+	}
+
+	/** Emails say "Your {site_title} order…": the store had no site name, so give it one if it is still empty. */
+	private static function site_name() {
+		if ( '' !== trim( (string) get_option( 'blogname' ) ) ) {
+			return 'kept';
+		}
+		update_option( 'blogname', 'AWRELIEF' );
+		return 'set';
 	}
 
 	/** The store only delivers in the UK: drop the Europe card from the Delivery page. */

@@ -38,4 +38,14 @@ php tools/pages.php <path/to/wp-load.php>
 
 `seed.php` imports the design media, creates the 13 scents and links the products, builds the homepage, kit, header and footer. `pages.php` builds the inner pages (Our Story, FAQ, Contact, Delivery, Returns, Terms, Privacy, Track my order, Care guide, Journal). Both are safe to run again; previous layouts are kept as revisions.
 
+On a host without a command line, use **AWRELIEF → Go live** in the dashboard instead. It checks the site first (Elementor, Pro Elements, theme, currency, leftover local-copy safety plugin, YayMail and the old plugins the design replaces) and runs the same three tools with a button each. Upload the design pictures and films to `wp-content/uploads/afz-design-assets/` first (`img/` and `video/` from the HTML design's `assets` folder).
+
+## Emails
+
+`includes/class-afz-emails.php` gives every WooCommerce email the AWRELIEF look (gold logo on black, parchment background, the site's colours and type) through WooCommerce's own filters, so WooCommerce updates keep working. The WooCommerce → Settings → Emails values are left alone. Email customiser plugins such as YayMail replace these templates and must stay off.
+
+## One-off content updates
+
+`includes/class-afz-updates.php` holds changes to the store's content that ship with the plugin (scent pictures, the UK-only Delivery page, the site name). Each runs once, the first time an administrator opens the dashboard after an update.
+
 Built by [Afaz Alif](https://afazalif.com/).

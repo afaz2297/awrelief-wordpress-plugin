@@ -10,19 +10,22 @@
  *   --theme  creates the Elementor kit, header and footer templates.
  */
 
-if ( PHP_SAPI !== 'cli' ) {
-	exit( 'CLI only' );
+// From the command line, or from AWRELIEF → Go live in the dashboard (WordPress already loaded, $args set there).
+if ( ! defined( 'ABSPATH' ) ) {
+	if ( PHP_SAPI !== 'cli' ) {
+		exit( 'CLI only' );
+	}
+	$args                   = $argv;
+	$_SERVER['HTTP_HOST']   = 'localhost';
+	$_SERVER['REQUEST_URI'] = '/';
+	define( 'WP_ADMIN', true );
+	require $args[1];
+	wp_set_current_user( 1 );
 }
-$args = $argv;
-$_SERVER['HTTP_HOST']   = 'localhost';
-$_SERVER['REQUEST_URI'] = '/';
-define( 'WP_ADMIN', true );
-require $args[1];
 require_once ABSPATH . 'wp-admin/includes/file.php';
 require_once ABSPATH . 'wp-admin/includes/media.php';
 require_once ABSPATH . 'wp-admin/includes/image.php';
 require_once ABSPATH . 'wp-admin/includes/plugin.php';
-wp_set_current_user( 1 );
 
 $src  = rtrim( $args[2], '/\\' );
 $opts = array_slice( $args, 3 );

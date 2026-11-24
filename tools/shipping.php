@@ -9,12 +9,15 @@
  * shows only the ones that apply, so a basket over £40 sees Free Standard Delivery, then Next Day.
  */
 
-if ( PHP_SAPI !== 'cli' ) {
-	exit( 'CLI only' );
+// From the command line, or from AWRELIEF → Go live in the dashboard (WordPress already loaded).
+if ( ! defined( 'ABSPATH' ) ) {
+	if ( PHP_SAPI !== 'cli' ) {
+		exit( 'CLI only' );
+	}
+	$_SERVER['HTTP_HOST']   = 'localhost';
+	$_SERVER['REQUEST_URI'] = '/';
+	require $argv[1];
 }
-$_SERVER['HTTP_HOST']   = 'localhost';
-$_SERVER['REQUEST_URI'] = '/';
-require $argv[1];
 
 $order = array( 'free standard' => 1, 'standard' => 2, 'next day' => 3, 'free next day' => 4 );
 
