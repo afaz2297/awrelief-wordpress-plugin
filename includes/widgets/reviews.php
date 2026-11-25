@@ -53,7 +53,8 @@ class AFZ_Widget_Reviews extends AFZ_Widget_Base {
 		$comments = get_comments( array( 'type' => 'review', 'status' => 'approve', 'number' => 60, 'meta_query' => array( array( 'key' => 'rating', 'value' => 5 ) ) ) ); // phpcs:ignore
 		$seen     = array();
 		foreach ( $comments as $c ) {
-			$text = trim( wp_strip_all_tags( $c->comment_content ) );
+			// star emoji typed into a review would sit huge inside the quote; the card shows its own stars
+			$text = trim( preg_replace( '/[\x{2B50}\x{2605}\x{2606}\x{1F31F}]\x{FE0F}?\s*/u', '', wp_strip_all_tags( $c->comment_content ) ) );
 			$key  = md5( strtolower( $text ) );
 			if ( isset( $seen[ $key ] ) || str_word_count( $text ) < $min_words ) {
 				continue; // the live shop has the same review posted twice on one product

@@ -28,6 +28,16 @@ class AFZ_Emails {
 		foreach ( array_keys( self::CLOSING ) as $id ) {
 			add_filter( 'woocommerce_email_additional_content_' . $id, array( $this, 'closing' ), 10, 3 );
 		}
+		add_filter( 'woocommerce_email_order_items_args', array( $this, 'item_images' ) );
+	}
+
+	/** A small picture of each product beside its name in the order table (client, 25 Nov). */
+	public function item_images( $args ) {
+		if ( empty( $args['plain_text'] ) ) {
+			$args['show_image'] = true;
+			$args['image_size'] = array( 64, 64 );
+		}
+		return $args;
 	}
 
 	/** Closing line per customer email, used while the store still has WooCommerce's stock line. */
@@ -142,6 +152,7 @@ thead th.td { font-size: 11px !important; font-weight: 500 !important; letter-sp
 .order-totals th.td, .order-totals td.td { border-top-width: 1px !important; font-size: 14px !important; }
 .order-totals-total th.td, .order-totals-total td.td { color: {$text} !important; font-size: 17px !important; font-weight: 600 !important; border-top: 1px solid {$gold} !important; }
 .order_item td.td { vertical-align: middle !important; }
+.order_item img { width: 64px !important; height: 64px !important; max-width: 64px; border: 1px solid {$line}; border-radius: 10px; margin: 0 14px 0 0 !important; vertical-align: middle; display: inline-block; background-color: {$cream}; }
 .address { border: 1px solid {$line} !important; border-radius: 12px; padding: 16px 18px !important; color: {$text} !important; font-style: normal !important; line-height: 1.6 !important; word-break: normal !important; overflow-wrap: break-word !important; }
 .wc-item-meta, .wc-item-meta li, .wc-item-meta p { color: {$muted} !important; font-size: 13px !important; }
 .button, a.button { background-color: {$ink} !important; color: {$ivory} !important; border-radius: 999px !important; padding: 13px 28px !important; text-decoration: none !important; font-weight: 500 !important; display: inline-block; }
@@ -160,6 +171,7 @@ thead th.td { font-size: 11px !important; font-weight: 500 !important; letter-sp
 	#body_content #body_content_inner { font-size: 15px !important; }
 	.address { padding: 12px !important; font-size: 14px !important; }
 	#body_content #addresses td { padding: 0 4px !important; }
+	.order_item img { display: block !important; width: 56px !important; height: 56px !important; margin: 0 0 8px !important; }
 }
 ";
 		return $css;

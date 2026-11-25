@@ -127,8 +127,10 @@ body.popup-open .afz .popup__card { opacity: 1; transform: none; }
 .afz .hero__title .line { padding-bottom: .16em; margin-bottom: -.12em; }
 .afz [data-split="lines"] .line { padding-bottom: .14em; margin-bottom: -.08em; }
 /* scent cards: the ingredient image stays inside its half of the card, text always on top */
-.afz .scent__visual { padding: 10px 0 14px; }
-.afz .scent__img { height: 78%; }
+/* every ingredient picture sits in the same square, centred on its aura; the box has a fixed height so
+   Safari sizes all cards alike (a % height inside the flex card is not resolved the same way there) */
+.afz .scent__visual { flex: 0 0 auto; height: clamp(190px, 26vh, 246px); padding: 0; }
+.afz .scent__img { position: absolute; top: 50%; left: 50%; translate: -50% -50%; width: auto; height: 90%; max-width: 84%; aspect-ratio: 1; object-fit: contain; }
 .afz .scent:hover .scent__img { transform: scale(1.05) rotate(-2deg); }
 .afz .scent__body { position: relative; z-index: 1; }
 /* line reveals clip only top and bottom: italic swashes (the y of "every", "by") may overhang sideways */
@@ -273,3 +275,10 @@ html body { font-weight: 400; }
 .afz .popup__card { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); }
 .afz .popup__body { min-width: 0; }
 @media (max-width: 700px) { .afz .popup__card { grid-template-columns: minmax(0, 1fr); } }
+
+/* homepage reviews: easier to read (client, 25 Nov). Upright Garamond instead of large italic Bodoni,
+   whose hairlines blur on dark backgrounds; smaller size, more line spacing, full-strength colour */
+.afz .review__text { font: 400 clamp(21px, 1.85vw, 29px)/1.5 'EB Garamond', Georgia, serif; letter-spacing: 0; color: var(--ivory); max-width: 44ch; margin-bottom: 30px; }
+.afz .review__by { font-size: 12px; color: var(--ivory); }
+.afz .review__by .mono:last-child { color: var(--ivory-2); }
+.afz .review:not(.is-active) { opacity: .35; }

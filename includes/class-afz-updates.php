@@ -20,6 +20,9 @@ class AFZ_Updates {
 		'2026-11-scent-images-v3'  => 'scent_images',
 		'2026-11-delivery-uk-only' => 'delivery_uk_only',
 		'2026-11-site-name'        => 'site_name',
+		'2026-11-scent-library-v2' => 'scent_library',
+		'2026-11-care-repellent'   => 'care_repellent',
+		'2026-11-tcs-email'        => 'tcs_email',
 	);
 
 	/**
@@ -166,6 +169,133 @@ class AFZ_Updates {
 			update_option( $key, $log, false );
 		}
 		return $log;
+	}
+
+	/** Uploads a file that ships in the plugin to the media library. Returns the attachment ID or WP_Error. */
+	private static function sideload( $src, $name, $title, $alt ) {
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		require_once ABSPATH . 'wp-admin/includes/media.php';
+		require_once ABSPATH . 'wp-admin/includes/image.php';
+		$tmp = wp_tempnam( $name );
+		copy( $src, $tmp );
+		$id = media_handle_sideload( array( 'name' => $name, 'tmp_name' => $tmp ), 0, $title );
+		if ( is_wp_error( $id ) ) {
+			wp_delete_file( $tmp );
+			return $id;
+		}
+		update_post_meta( $id, '_wp_attachment_image_alt', $alt );
+		return $id;
+	}
+
+	/** Saves an Elementor layout and clears the caches that hold the old one. */
+	private static function save_layout( $post_id, $json ) {
+		update_post_meta( $post_id, '_elementor_data', wp_slash( $json ) );
+		delete_post_meta( $post_id, '_elementor_element_cache' );
+		delete_post_meta( $post_id, '_elementor_css' );
+		if ( class_exists( '\Elementor\Plugin' ) ) {
+			\Elementor\Plugin::$instance->files_manager->clear_cache();
+		}
+	}
+
+	/**
+	 * Homepage Scent Library: each scent's ingredient picture, trimmed and centred on the same
+	 * square so the cards look alike (client, 25 Nov). Files in assets/img/scents/library/.
+	 */
+	private static function scent_library( $step ) {
+		$key    = self::OPTION . '_' . $step;
+		$log    = (array) get_option( $key, array() );
+		$map    = (array) get_option( 'afz_seed_media', array() );
+		$budget = 4;
+		foreach ( array_keys( self::SCENTS ) as $slug ) {
+			if ( isset( $log[ $slug ] ) ) {
+				continue;
+			}
+			if ( $budget-- <= 0 ) {
+				return null;
+			}
+			$log[ $slug ] = 'started';
+			update_option( $key, $log, false );
+			$term = get_term_by( 'slug', $slug, AFZ_Scents::TAX );
+			$src  = AFZ_DIR . 'assets/img/scents/library/' . $slug . '.webp';
+			if ( ! $term || ! file_exists( $src ) ) {
+				$log[ $slug ] = 'skipped';
+				update_option( $key, $log, false );
+				continue;
+			}
+			$id = self::sideload( $src, 'scent-library-' . $slug . '.webp', $term->name . ' scent', $term->name . ' scent ingredients' );
+			if ( is_wp_error( $id ) ) {
+				$log[ $slug ] = 'upload failed: ' . $id->get_error_message();
+				update_option( $key, $log, false );
+				continue;
+			}
+			update_term_meta( $term->term_id, 'afz_image', (string) $id );
+			$map[ $slug . '.webp' ] = $id;
+			update_option( 'afz_seed_media', $map, false );
+			$log[ $slug ] = (string) $id;
+			update_option( $key, $log, false );
+		}
+		return $log;
+	}
+
+	/** Care Guide: the client's new insect repellent photo (25 Nov) in place of the old one. */
+	private static function care_repellent() {
+		$page = get_page_by_path( 'care-guide' );
+		if ( ! $page ) {
+			return 'no page';
+		}
+		$data = json_decode( (string) get_post_meta( $page->ID, '_elementor_data', true ), true );
+		if ( ! is_array( $data ) ) {
+			return 'no layout';
+		}
+		$map = (array) get_option( 'afz_seed_media', array() );
+		$old = (int) ( $map['care-repellent.webp'] ?? 0 );
+		$id  = self::sideload( AFZ_DIR . 'assets/img/care-repellent-v2.webp', 'care-repellent-garden.webp', 'AWRELIEF insect repellent in a sunlit garden', 'AWRELIEF natural insect repellent 100ml among citrus, mint and frangipani in a sunlit garden' );
+		if ( is_wp_error( $id ) ) {
+			return 'upload failed: ' . $id->get_error_message();
+		}
+		$url     = wp_get_attachment_url( $id );
+		$swapped = 0;
+		$walk    = function ( &$node ) use ( &$walk, $old, $id, $url, &$swapped ) {
+			if ( ! is_array( $node ) ) {
+				return;
+			}
+			if ( isset( $node['url'], $node['id'] ) && ( ( $old && (int) $node['id'] === $old ) || 0 === strpos( basename( (string) $node['url'] ), 'care-repellent' ) ) ) {
+				$node['id']  = $id;
+				$node['url'] = $url;
+				++$swapped;
+				return;
+			}
+			foreach ( $node as &$child ) {
+				$walk( $child );
+			}
+		};
+		$walk( $data );
+		$map['care-repellent.webp'] = $id;
+		update_option( 'afz_seed_media', $map, false );
+		if ( ! $swapped ) {
+			return 'uploaded ' . $id . ', no old picture on the page';
+		}
+		self::save_layout( $page->ID, wp_json_encode( $data ) );
+		return $id . ' on care guide';
+	}
+
+	/**
+	 * Terms & Conditions: copies of the site rewrote the domain inside the contact address
+	 * (hello@localhost, hello@awrelief.afazalif.com). Put the real address back.
+	 */
+	private static function tcs_email() {
+		$page = get_page_by_path( 'tcs' );
+		if ( ! $page ) {
+			return 'no page';
+		}
+		$json  = (string) get_post_meta( $page->ID, '_elementor_data', true );
+		$email = (string) ( AFZ_Settings::get()['email'] ?? 'hello@awrelief.com' );
+		$fixed = preg_replace( '#\bhello@(?!awrelief\.com\b)[a-z0-9.-]*[a-z0-9]#i', $email, $json, -1, $count );
+		if ( ! $count ) {
+			return 'nothing to fix';
+		}
+		self::save_layout( $page->ID, $fixed );
+		return 'fixed ' . $count;
 	}
 
 	/** Emails say "Your {site_title} order…": the store had no site name, so give it one if it is still empty. */
