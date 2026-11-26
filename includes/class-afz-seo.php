@@ -25,6 +25,7 @@ class AFZ_SEO {
 		add_filter( 'aioseo_description', array( $this, 'description' ), 20 );
 		add_filter( 'aioseo_schema_output', array( $this, 'schema' ), 20 );
 		add_action( 'template_redirect', array( $this, 'old_pages' ), 1 );
+		add_filter( 'aioseo_sitemap_exclude_posts', array( $this, 'sitemap_exclude' ), 10, 2 );
 	}
 
 	/** Pages the old returns plugin made; the Returns page and My account replace them. */
@@ -33,8 +34,26 @@ class AFZ_SEO {
 		'view-order-msg'      => 'my-account',
 	);
 
+	private static function old_plugin_on() {
+		return in_array( 'woo-refund-and-exchange-lite/woocommerce-refund-and-exchange-lite.php', (array) get_option( 'active_plugins', array() ), true );
+	}
+
+	/** Keep the redirected pages out of the sitemap. */
+	public function sitemap_exclude( $ids, $type = '' ) {
+		if ( self::old_plugin_on() ) {
+			return $ids;
+		}
+		foreach ( array_keys( self::OLD_PAGES ) as $slug ) {
+			$page = get_page_by_path( $slug );
+			if ( $page ) {
+				$ids[] = (int) $page->ID;
+			}
+		}
+		return $ids;
+	}
+
 	public function old_pages() {
-		if ( in_array( 'woo-refund-and-exchange-lite/woocommerce-refund-and-exchange-lite.php', (array) get_option( 'active_plugins', array() ), true ) ) {
+		if ( self::old_plugin_on() ) {
 			return; // the old plugin still runs these pages until it is switched off at go-live
 		}
 		foreach ( self::OLD_PAGES as $old => $new ) {
