@@ -44,8 +44,12 @@ On a host without a command line, use **AWRELIEF → Go live** in the dashboard 
 
 `includes/class-afz-emails.php` gives every WooCommerce email the AWRELIEF look (gold logo on black, parchment background, the site's colours and type) through WooCommerce's own filters, so WooCommerce updates keep working. The WooCommerce → Settings → Emails values are left alone. Email customiser plugins such as YayMail replace these templates and must stay off.
 
+## Search snippets
+
+`includes/class-afz-seo.php` works on top of All in One SEO. All in One SEO builds page descriptions from the page text, which on Elementor pages is a jumble of headings, so pages, ranges and scents get a written description instead, and anything longer than Google shows is shortened. A description typed into All in One SEO for a page always wins. The old returns plugin's pages (Refund Request Form, View Order Messages) redirect to Returns and My account once that plugin is switched off.
+
 ## One-off content updates
 
-`includes/class-afz-updates.php` holds changes to the store's content that ship with the plugin (scent pictures, the UK-only Delivery page, the site name). Each runs once, the first time an administrator opens the dashboard after an update.
+`includes/class-afz-updates.php` holds changes to the store's content that ship with the plugin (scent pictures, the UK-only Delivery page, the site name, and moving WordPress's sample "Hello world!" post to drafts). Each runs once, the first time an administrator opens the dashboard after an update.
 
 Built by [Afaz Alif](https://afazalif.com/).

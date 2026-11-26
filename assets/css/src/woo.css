@@ -478,3 +478,11 @@
   .afz #order_review table.shop_table td.product-name { padding-left: 70px; height: 100px; }
   .afz .afz-ri__img { width: 56px; height: 70px; }
 }
+
+/* gift card balance page (WP Swings shortcode): the plugin's purple inline button in the site's gold */
+.afz .wps-gift-card-balance-shortcode { max-width: 560px; }
+.afz .wps-gift-card-balance-shortcode .wps-shortcode-input { min-height: 54px; padding: 15px 18px !important; border-radius: 14px !important; border: 1px solid var(--line-dark) !important; background: #fff; font: 400 16px var(--f-body); }
+.afz .wps-gift-card-balance-shortcode .wps-shortcode-input:focus { border-color: var(--gold) !important; outline: 0; box-shadow: 0 0 0 3px rgba(201,160,74,.18); }
+.afz #wps_shortcode_check_balance { height: 54px; margin-top: 6px; padding: 0 28px !important; border-radius: 999px !important; background: var(--gold-grad) !important; background-size: 200% 100% !important; color: var(--ink) !important; font: 500 12px var(--f-body); letter-spacing: .16em; text-transform: uppercase; box-shadow: 0 10px 40px -12px rgba(216,178,80,.55); transition: background-position 1.2s var(--ease); }
+.afz #wps_shortcode_check_balance:hover { background-position: 100% 0 !important; }
+.afz .wps-gift-card-balance-shortcode .wps-shortcode-spinner { border-color: var(--gold) !important; border-top-color: transparent !important; }

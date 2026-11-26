@@ -34,6 +34,7 @@ require_once AFZ_DIR . 'includes/class-afz-performance.php';
 require_once AFZ_DIR . 'includes/class-afz-security.php';
 require_once AFZ_DIR . 'includes/class-afz-updates.php';
 require_once AFZ_DIR . 'includes/class-afz-emails.php';
+require_once AFZ_DIR . 'includes/class-afz-seo.php';
 require_once AFZ_DIR . 'includes/class-afz-golive.php';
 
 AFZ_Settings::instance();
@@ -47,6 +48,7 @@ AFZ_Performance::instance();
 AFZ_Security::instance();
 AFZ_Updates::init();
 AFZ_Emails::instance();
+AFZ_SEO::instance();
 if ( is_admin() ) {
 	AFZ_Go_Live::instance();
 }

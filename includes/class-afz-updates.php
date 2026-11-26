@@ -23,6 +23,7 @@ class AFZ_Updates {
 		'2026-11-scent-library-v2' => 'scent_library',
 		'2026-11-care-repellent'   => 'care_repellent',
 		'2026-11-tcs-email'        => 'tcs_email',
+		'2026-11-hello-world'      => 'hello_world',
 	);
 
 	/**
@@ -305,6 +306,19 @@ class AFZ_Updates {
 		}
 		update_option( 'blogname', 'AWRELIEF' );
 		return 'set';
+	}
+
+	/**
+	 * WordPress's sample "Hello world!" post was still published, so it sat in the sitemap and in
+	 * search results. Moved to drafts only while it is the untouched sample.
+	 */
+	private static function hello_world() {
+		$post = get_page_by_path( 'hello-world', OBJECT, 'post' );
+		if ( ! $post || 'publish' !== $post->post_status || false === strpos( $post->post_content, 'Welcome to WordPress' ) ) {
+			return 'none';
+		}
+		wp_update_post( array( 'ID' => $post->ID, 'post_status' => 'draft' ) );
+		return 'drafted';
 	}
 
 	/** The store only delivers in the UK: drop the Europe card from the Delivery page. */
