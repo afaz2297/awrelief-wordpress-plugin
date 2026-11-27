@@ -612,6 +612,7 @@
       $('.cart__ship-bar i', ship).style.transform = `scaleX(${Math.min(1, state.subtotal / FREE)})`;
       const bar = $('.cart__ship-bar', ship); if (bar) bar.setAttribute('aria-valuenow', Math.min(FREE, state.subtotal).toFixed(2));
       ship.classList.toggle('is-free', left === 0 && state.subtotal > 0);
+      ship.hidden = state.ship === false; // only gift cards in the basket: nothing to deliver
     });
   }
   const openCart = v => {

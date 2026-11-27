@@ -987,6 +987,7 @@ body.popup-open .afz .popup__card { opacity: 1; transform: none; }
 .afz .display em, .afz .gold-text { padding-right: .16em; margin-right: -.1em; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
 
 /* styled dropdowns (afazalif.js swaps the native list for this one) */
+.afz .cart__ship[hidden] { display: none !important; }
 .afz .afz-select { position: relative; display: inline-block; max-width: 100%; }
 .afz .afz-select--field { display: block; }
 .afz .afz-select__native { position: absolute !important; inset: 0; width: 100%; height: 100%; opacity: 0; pointer-events: none; }

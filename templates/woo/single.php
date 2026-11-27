@@ -21,6 +21,7 @@ while ( have_posts() ) :
 	$afz_free    = (float) afz_opt( 'free_ship', 40 );
 	$afz_delivery = get_page_by_path( 'delivery' );
 	$afz_returns = get_page_by_path( 'returns' );
+	$afz_gift    = $product && $product->is_type( 'wgm_gift_card' );
 	?>
 	<main id="content" class="afz afz-product">
 		<?php do_action( 'woocommerce_before_single_product' ); ?>
@@ -91,8 +92,8 @@ while ( have_posts() ) :
 						<?php do_action( 'woocommerce_single_product_summary' ); ?>
 
 						<ul class="pdp__trust mono">
-							<?php if ( $afz_free ) : ?><li><?php echo afz_icon( 'truck' ); // phpcs:ignore ?><?php echo esc_html( sprintf( __( 'Free UK delivery over %s', 'afazalif' ), afz_money( $afz_free ) ) ); ?></li><?php endif; ?>
-							<li><span class="pdp__tick">✦</span><?php esc_html_e( 'Handmade · Vegan · Cruelty-free', 'afazalif' ); ?></li>
+							<?php if ( $afz_free && ! $afz_gift ) : ?><li><?php echo afz_icon( 'truck' ); // phpcs:ignore ?><?php echo esc_html( sprintf( __( 'Free UK delivery over %s', 'afazalif' ), afz_money( $afz_free ) ) ); ?></li><?php endif; ?>
+							<li><span class="pdp__tick">✦</span><?php $afz_gift ? esc_html_e( 'Sent by email', 'afazalif' ) : esc_html_e( 'Handmade · Vegan · Cruelty-free', 'afazalif' ); ?></li>
 							<li><?php echo afz_icon( 'lock' ); // phpcs:ignore ?><?php esc_html_e( 'Secure checkout', 'afazalif' ); ?></li>
 						</ul>
 
@@ -100,6 +101,7 @@ while ( have_posts() ) :
 							<?php if ( get_the_content() ) : ?>
 								<details open><summary><?php esc_html_e( 'Details & care', 'afazalif' ); ?></summary><div class="pdp__acc-body"><?php echo apply_filters( 'the_content', AFZ_Woo::without_notes( get_the_content() ) ); // phpcs:ignore ?></div></details>
 							<?php endif; ?>
+							<?php if ( ! $afz_gift ) : // gift cards are sent by email and are non-refundable (client, 27 Nov) ?>
 							<details><summary><?php esc_html_e( 'Delivery & returns', 'afazalif' ); ?></summary><div class="pdp__acc-body">
 								<p><?php esc_html_e( 'UK Standard Delivery £3.99 (up to 4 working days), free over £40.', 'afazalif' ); ?></p>
 								<p><?php esc_html_e( 'UK Next Day Delivery £6.99 when you order before 4pm, free over £80.', 'afazalif' ); ?>
@@ -107,6 +109,7 @@ while ( have_posts() ) :
 								<p><?php esc_html_e( 'Changed your mind? You can return unused items within 14 days.', 'afazalif' ); ?>
 								<?php if ( $afz_returns ) : ?> <a href="<?php echo esc_url( get_permalink( $afz_returns ) ); ?>"><?php esc_html_e( 'Returns', 'afazalif' ); ?></a><?php endif; ?></p>
 							</div></details>
+							<?php endif; ?>
 						</div>
 					</div>
 				</div>

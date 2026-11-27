@@ -216,6 +216,7 @@ $tcs = preg_replace_callback( '#<(p|div)[^>]*>\s*(?:<(?:b|strong)>)?\s*(\d{1,2})
 }, $tcs );
 // copies of the site (local, review) rewrite the domain inside the old text: always show the real contact address
 $tcs = preg_replace( '#\bhello@(?!awrelief\.com\b)[a-z0-9.-]*[a-z0-9]#i', esc_html( AFZ_Settings::get()['email'] ?? 'hello@awrelief.com' ), $tcs );
+$tcs = AFZ_Updates::with_gift_card_terms( $tcs );
 $page( 'tcs', 'Terms & Conditions', array(
 	$box( array( $hero( 'Legal', 'Terms & {conditions}', 'The terms under which we supply our products to you. Please read them before ordering.' ) ) ),
 	$box( array( $el( 'afz-rich', array( 'body' => $tcs, 'toc' => 'yes' ) ) ), 'afz-sheet light' ),

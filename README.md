@@ -50,6 +50,6 @@ On a host without a command line, use **AWRELIEF → Go live** in the dashboard 
 
 ## One-off content updates
 
-`includes/class-afz-updates.php` holds changes to the store's content that ship with the plugin (scent pictures, the UK-only Delivery page, the site name, and moving WordPress's sample "Hello world!" post to drafts). Each runs once, the first time an administrator opens the dashboard after an update.
+`includes/class-afz-updates.php` holds changes to the store's content that ship with the plugin (scent pictures, the UK-only Delivery page, the site name, moving WordPress's sample "Hello world!" post to drafts, and the gift card terms). Each runs once, the first time an administrator opens the dashboard after an update.
 
 Built by [Afaz Alif](https://afazalif.com/).

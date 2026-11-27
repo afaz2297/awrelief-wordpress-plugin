@@ -29,6 +29,10 @@ class AFZ_Woo {
 		add_filter( 'woocommerce_breadcrumb_defaults', array( $this, 'breadcrumb' ) );
 		add_action( 'woocommerce_before_cart_totals', array( $this, 'meter' ) );
 		add_filter( 'woocommerce_package_rates', array( $this, 'free_beats_standard' ), 100 );
+		// gift cards are sent by email (client, 27 Nov): no delivery address or delivery charge for them
+		add_filter( 'woocommerce_product_needs_shipping', function ( $needs, $product ) {
+			return $product && $product->is_type( 'wgm_gift_card' ) ? false : $needs;
+		}, 20, 2 );
 		add_filter( 'woocommerce_my_account_my_orders_actions', array( $this, 'order_return_action' ), 10, 2 );
 		add_action( 'wc_ajax_afz_search', array( $this, 'live_search' ) );
 		// after WooCommerce's own product query, which resets post__in and the sort order
@@ -155,7 +159,7 @@ class AFZ_Woo {
 	/** Free-delivery progress above the basket totals (same card as the basket drawer). */
 	public function meter() {
 		$free = (float) afz_opt( 'free_ship', 40 );
-		if ( ! $free || ! WC()->cart ) {
+		if ( ! $free || ! WC()->cart || ! WC()->cart->needs_shipping() ) {
 			return;
 		}
 		$sum  = (float) WC()->cart->get_subtotal() + (float) WC()->cart->get_subtotal_tax();
@@ -181,7 +185,7 @@ class AFZ_Woo {
 	/** On checkout, a one-line reminder when free delivery is close. */
 	public function meter_row() {
 		$free = (float) afz_opt( 'free_ship', 40 );
-		if ( ! $free || ! WC()->cart ) {
+		if ( ! $free || ! WC()->cart || ! WC()->cart->needs_shipping() ) {
 			return;
 		}
 		$left = $free - ( (float) WC()->cart->get_subtotal() + (float) WC()->cart->get_subtotal_tax() );

@@ -24,7 +24,21 @@ class AFZ_Updates {
 		'2026-11-care-repellent'   => 'care_repellent',
 		'2026-11-tcs-email'        => 'tcs_email',
 		'2026-11-hello-world'      => 'hello_world',
+		'2026-11-tcs-gift-cards'   => 'tcs_gift_cards',
 	);
+
+	/** Gift card terms the client asked for (27 Nov). tools/pages.php adds them too when it builds the page. */
+	const GIFT_TERMS = '<h2>17. Gift cards</h2><ol><li>AWRELIEF gift cards are sent electronically by email. There is no physical delivery.</li><li>Gift card purchases are non-refundable once purchased and cannot be exchanged for cash.</li><li>This does not affect your statutory rights.</li></ol>';
+
+	/** The Terms text with the gift card section at the end and a pointer to it under Returns. */
+	public static function with_gift_card_terms( $html ) {
+		if ( false !== stripos( $html, 'Gift cards</h2>' ) ) {
+			return $html;
+		}
+		$html = preg_replace( '#(\d+\.\s*Returns</h2>.*?<ol[^>]*>)#s', '$1<li>Gift cards are non-refundable once purchased (see clause 17).</li>', $html, 1 );
+		// before the closing tags the old page left at the end, so it sits beside section 16
+		return preg_replace( '#((?:\s*</div>)*\s*)$#', self::GIFT_TERMS . '$1', $html, 1 );
+	}
 
 	/**
 	 * Scent => current picture in assets/img/scents/ and every earlier file it replaces.
@@ -297,6 +311,32 @@ class AFZ_Updates {
 		}
 		self::save_layout( $page->ID, $fixed );
 		return 'fixed ' . $count;
+	}
+
+	private static function tcs_gift_cards() {
+		$page = get_page_by_path( 'tcs' );
+		$data = $page ? json_decode( (string) get_post_meta( $page->ID, '_elementor_data', true ), true ) : null;
+		if ( ! is_array( $data ) ) {
+			return 'no page';
+		}
+		$done = false;
+		$walk = function ( &$els ) use ( &$walk, &$done ) {
+			foreach ( $els as &$e ) {
+				if ( ! $done && 'afz-rich' === ( $e['widgetType'] ?? '' ) && ! empty( $e['settings']['body'] ) && false !== strpos( $e['settings']['body'], '</h2>' ) ) {
+					$new  = self::with_gift_card_terms( $e['settings']['body'] );
+					$done = $new !== $e['settings']['body'] ? 'added' : 'already there';
+					$e['settings']['body'] = $new;
+				}
+				if ( ! empty( $e['elements'] ) ) {
+					$walk( $e['elements'] );
+				}
+			}
+		};
+		$walk( $data );
+		if ( 'added' === $done ) {
+			self::save_layout( $page->ID, wp_json_encode( $data ) );
+		}
+		return $done ? $done : 'no terms text';
 	}
 
 	/** Emails say "Your {site_title} order…": the store had no site name, so give it one if it is still empty. */

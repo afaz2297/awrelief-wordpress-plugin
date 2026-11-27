@@ -86,6 +86,7 @@ class AFZ_Cart {
 			$out['count']  += (int) $item['quantity'];
 		}
 		$out['subtotal'] = (float) WC()->cart->get_subtotal() + (float) WC()->cart->get_subtotal_tax();
+		$out['ship']     = ! $out['count'] || WC()->cart->needs_shipping(); // false for a basket of gift cards only
 		$out['upsells']  = self::upsells();
 		return $out;
 	}
