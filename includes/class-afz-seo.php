@@ -23,6 +23,9 @@ class AFZ_SEO {
 
 	private function __construct() {
 		add_filter( 'aioseo_description', array( $this, 'description' ), 20 );
+		add_filter( 'aioseo_title', array( $this, 'title' ), 20 );
+		add_filter( 'aioseo_facebook_tags', array( $this, 'facebook' ), 20 );
+		add_filter( 'aioseo_twitter_tags', array( $this, 'twitter' ), 20 );
 		add_filter( 'aioseo_schema_output', array( $this, 'schema' ), 20 );
 		add_action( 'template_redirect', array( $this, 'old_pages' ), 1 );
 		add_filter( 'aioseo_sitemap_exclude_posts', array( $this, 'sitemap_exclude' ), 10, 2 );
@@ -149,8 +152,8 @@ class AFZ_SEO {
 		return $graphs;
 	}
 
-	/** The description saved in All in One SEO for the post or page being shown, if any. */
-	private static function own() {
+	/** The description (or title) saved in All in One SEO for the post or page being shown, if any. */
+	private static function own( $field = 'description' ) {
 		if ( ! is_singular() && ! ( is_front_page() && get_option( 'page_on_front' ) ) ) {
 			return '';
 		}
@@ -160,12 +163,84 @@ class AFZ_SEO {
 		if ( ! $id ) {
 			return '';
 		}
-		$own = wp_cache_get( 'afz_seo_desc_' . $id );
-		if ( false === $own ) {
-			$own = (string) $wpdb->get_var( $wpdb->prepare( "SELECT description FROM {$table} WHERE post_id = %d", $id ) ); // phpcs:ignore
-			wp_cache_set( 'afz_seo_desc_' . $id, $own );
+		$row = wp_cache_get( 'afz_seo_row_' . $id );
+		if ( false === $row ) {
+			$row = (array) $wpdb->get_row( $wpdb->prepare( "SELECT title, description FROM {$table} WHERE post_id = %d", $id ), ARRAY_A ); // phpcs:ignore
+			wp_cache_set( 'afz_seo_row_' . $id, $row );
 		}
-		return trim( $own );
+		$own = trim( (string) ( $row[ $field ] ?? '' ) );
+		// All in One SEO's own default for pages is just smart tags, which is not something anyone typed
+		return 'title' === $field && preg_match( '/^(#[a-z_]+\s*)+$/', $own ) ? '' : $own;
+	}
+
+	/** Homepage title: the brand and what it sells, not "Home - AWRELIEF". */
+	private static function home_title() {
+		return is_front_page() && '' === self::own( 'title' ) ? __( 'AWRELIEF | Handmade Candles, Reed Diffusers & Refills', 'afazalif' ) : '';
+	}
+
+	public function title( $value ) {
+		if ( is_admin() ) {
+			return $value;
+		}
+		$home = self::home_title();
+		return '' !== $home ? $home : $value;
+	}
+
+	/**
+	 * Picture shown when a page is shared: the product's own photo on product pages, the
+	 * branded AWRELIEF picture elsewhere. A picture chosen in All in One SEO is kept, except the
+	 * small site icon it falls back to.
+	 *
+	 * @return array [ url, width, height ] or empty when All in One SEO's picture should stay.
+	 */
+	private static function share_image( $current ) {
+		$current = (string) $current;
+		$icon    = '' === $current || false !== strpos( basename( $current ), 'cropped-' ) || ( get_site_icon_url() && false !== strpos( $current, basename( (string) get_site_icon_url() ) ) );
+		if ( is_singular( 'product' ) && has_post_thumbnail() ) {
+			if ( ! $icon ) {
+				return array();
+			}
+			$img = wp_get_attachment_image_src( get_post_thumbnail_id(), 'large' );
+			if ( $img ) {
+				return array( $img[0], (int) $img[1], (int) $img[2] );
+			}
+		}
+		return $icon ? array( AFZ_URL . 'assets/img/share.jpg', 1200, 630 ) : array();
+	}
+
+	public function facebook( $meta ) {
+		if ( ! is_array( $meta ) ) {
+			return $meta;
+		}
+		$meta['og:site_name'] = get_bloginfo( 'name' );
+		$home                 = self::home_title();
+		if ( '' !== $home ) {
+			$meta['og:title'] = $home;
+		}
+		$img = self::share_image( $meta['og:image'] ?? '' );
+		if ( $img ) {
+			$meta['og:image']            = $img[0];
+			$meta['og:image:secure_url'] = is_ssl() ? $img[0] : '';
+			$meta['og:image:width']      = $img[1];
+			$meta['og:image:height']     = $img[2];
+		}
+		return $meta;
+	}
+
+	public function twitter( $meta ) {
+		if ( ! is_array( $meta ) ) {
+			return $meta;
+		}
+		$home = self::home_title();
+		if ( '' !== $home ) {
+			$meta['twitter:title'] = $home;
+		}
+		$img = self::share_image( $meta['twitter:image'] ?? '' );
+		if ( $img ) {
+			$meta['twitter:image'] = $img[0];
+			$meta['twitter:card']  = 'summary_large_image';
+		}
+		return $meta;
 	}
 
 	/** Cut at the last full sentence (or word) that fits. */
