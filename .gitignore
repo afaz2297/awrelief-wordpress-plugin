@@ -3,3 +3,4 @@ Thumbs.db
 *.log
 node_modules/
 tools/__pycache__/
+design-assets/

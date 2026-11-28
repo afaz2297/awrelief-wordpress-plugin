@@ -20,7 +20,7 @@ class AFZ_Updates {
 		'2026-11-scent-images-v3'  => 'scent_images',
 		'2026-11-delivery-uk-only' => 'delivery_uk_only',
 		'2026-11-site-name'        => 'site_name',
-		'2026-11-scent-library-v2' => 'scent_library',
+		'2026-11-scent-library-v3' => 'scent_library', // v3: waits for the scents, so a fresh go-live does not skip them
 		'2026-11-care-repellent'   => 'care_repellent',
 		'2026-11-tcs-email'        => 'tcs_email',
 		'2026-11-hello-world'      => 'hello_world',
@@ -217,6 +217,10 @@ class AFZ_Updates {
 	 * square so the cards look alike (client, 25 Nov). Files in assets/img/scents/library/.
 	 */
 	private static function scent_library( $step ) {
+		// on a site going live the plugin is switched on before Go live step 1 makes the scents: wait for them
+		if ( ! taxonomy_exists( AFZ_Scents::TAX ) || ! get_term_by( 'slug', 'heaven', AFZ_Scents::TAX ) ) {
+			return null;
+		}
 		$key    = self::OPTION . '_' . $step;
 		$log    = (array) get_option( $key, array() );
 		$map    = (array) get_option( 'afz_seed_media', array() );
@@ -225,13 +229,20 @@ class AFZ_Updates {
 			if ( isset( $log[ $slug ] ) ) {
 				continue;
 			}
+			$term = get_term_by( 'slug', $slug, AFZ_Scents::TAX );
+			$src  = AFZ_DIR . 'assets/img/scents/library/' . $slug . '.webp';
+			// already has this picture (sites that ran the earlier version of this step)
+			$has = $term ? (int) get_term_meta( $term->term_id, 'afz_image', true ) : 0;
+			if ( $has && 0 === strpos( basename( (string) get_attached_file( $has ) ), 'scent-library-' . $slug ) ) {
+				$log[ $slug ] = (string) $has;
+				update_option( $key, $log, false );
+				continue;
+			}
 			if ( $budget-- <= 0 ) {
 				return null;
 			}
 			$log[ $slug ] = 'started';
 			update_option( $key, $log, false );
-			$term = get_term_by( 'slug', $slug, AFZ_Scents::TAX );
-			$src  = AFZ_DIR . 'assets/img/scents/library/' . $slug . '.webp';
 			if ( ! $term || ! file_exists( $src ) ) {
 				$log[ $slug ] = 'skipped';
 				update_option( $key, $log, false );

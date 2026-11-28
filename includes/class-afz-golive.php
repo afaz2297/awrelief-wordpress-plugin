@@ -11,7 +11,10 @@ class AFZ_Go_Live {
 
 	const SLUG = 'afazalif-go-live';
 
-	/** Where the design pictures and films go: wp-content/uploads/afz-design-assets/ */
+	/**
+	 * Where the design pictures and films are: wp-content/uploads/afz-design-assets/, or the
+	 * design-assets folder inside the plugin when the live zip carries them (no file manager needed).
+	 */
 	const ASSETS = 'afz-design-assets';
 
 	/** step => [ label, tool file, arguments after the assets folder ] */
@@ -55,8 +58,9 @@ class AFZ_Go_Live {
 	}
 
 	public static function assets_dir() {
-		$up = wp_upload_dir( null, false );
-		return trailingslashit( $up['basedir'] ) . self::ASSETS;
+		$up  = wp_upload_dir( null, false );
+		$dir = trailingslashit( $up['basedir'] ) . self::ASSETS;
+		return ! is_dir( $dir ) && is_dir( AFZ_DIR . 'design-assets' ) ? AFZ_DIR . 'design-assets' : $dir;
 	}
 
 	/** Each check: [ ok|warn|bad, title, detail ] */
@@ -71,7 +75,7 @@ class AFZ_Go_Live {
 		$videos = glob( $dir . '/video/*.mp4' ) ?: array();
 		$scents = glob( $dir . '/img/scents/*.webp' ) ?: array();
 		$c[]    = ( count( $videos ) >= 4 && count( $scents ) >= 13 )
-			? array( 'ok', 'Design pictures and films found', count( $videos ) . ' films, ' . count( $scents ) . ' scent pictures in uploads/' . self::ASSETS . '/' )
+			? array( 'ok', 'Design pictures and films found', count( $videos ) . ' films, ' . count( $scents ) . ' scent pictures in ' . esc_html( str_replace( ABSPATH, '', $dir ) ) . '/' )
 			: array( 'bad', 'Design pictures and films not found', 'Upload awrelief-design-assets.zip to wp-content/uploads/ and extract it there, so the folder uploads/' . self::ASSETS . '/ exists.' );
 
 		$c[] = file_exists( WPMU_PLUGIN_DIR . '/aw-local-safety.php' )
@@ -185,7 +189,7 @@ class AFZ_Go_Live {
 		ignore_user_abort( true );
 		$dir = self::assets_dir();
 		if ( 'seed' === $key && ! is_dir( $dir ) ) {
-			return 'uploads/' . self::ASSETS . '/ not found. Nothing was changed.';
+			return 'Design pictures not found (uploads/' . self::ASSETS . '/ or the plugin\'s design-assets folder). Nothing was changed.';
 		}
 		$args = array_merge( array( '', ABSPATH . 'wp-load.php', $dir ), $extra ); // read by the tool
 		ob_start();
